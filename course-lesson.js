@@ -6,7 +6,7 @@ const root=document.getElementById('lesson-content');
 if(!lesson){root.innerHTML='<h1>没有这个课次</h1><p>请选择课程目录中的课次。</p><a class="button" href="index.html#schedule">返回课程目录</a>';}
 else {
  const l=lesson,t=l.task;
- const widgetHTML=l.n===3&&l.caseStudy!=='literature'?CourseWidgets.jug:[8,9].includes(l.n)?CourseWidgets.game:'';
+ const widgetHTML=l.n===3?CourseWidgets.jug:[8,9].includes(l.n)?CourseWidgets.game:'';
  const widgetNav=document.getElementById('widget-nav');widgetNav.hidden=!widgetHTML;
 
  document.title=`${String(l.n).padStart(2,'0')} · ${l.title} | 人工智能原理与应用`;
@@ -25,7 +25,7 @@ else {
  if([2,3,4].includes(l.n)){
   document.querySelector('#materials .source-block').insertAdjacentHTML('beforeend','<div class="completion"><h3>文献检索与综述辅助 Agent · 项目任务书</h3><p>了解从文献总结、对比到综述框架的完整实践。以下保留老师提供的任务书原文；其中的篇数、字数等作为项目方案参考，是否必做、提交时间与评分要求以课堂通知为准，不新增本课必做作业。</p><a class="button secondary" href="literature-agent-project.md" download="文献检索Agent课程项目任务书.md">下载项目任务书（Markdown） ↓</a></div>');
  }
- if(l.n===3&&l.caseStudy!=='literature')window.initializeJug();
+ if(l.n===3)window.initializeJug();
  if([8,9].includes(l.n)){
   if(l.n===8)document.querySelector('[data-game="alphabeta"]').remove();
   window.initializeSearchWidgets(l.n===8?10:11);
