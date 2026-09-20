@@ -1,6 +1,7 @@
 'use strict';
 (() => {
   if (new URLSearchParams(location.search).get('n') !== '2') return;
+  if (window.CourseData.lessons.find(l=>l.n===2)?.caseStudy==='literature') return;
   const warmup = document.getElementById('warmup');
   if (!warmup) return;
   const section = document.createElement('section');

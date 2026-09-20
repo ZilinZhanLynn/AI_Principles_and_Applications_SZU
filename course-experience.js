@@ -26,14 +26,16 @@
   material.querySelector('.source-block').append(create('p','', '<a href="course-outline.md" download="人工智能原理与应用_课程大纲.md">下载课程大纲（文字版） ↓</a>'));
   const resources=create('div','guided-resources',`<h3>精选资源 · 带着问题看</h3><p class="muted">选读，不增加考核要求。外部资料以原站为准；英文视频可能需要单独的网络访问条件，课堂核心实验不依赖外站。</p>${extras.map(([title,url,guide])=>`<article><h4>${link(url,title)}</h4><p>${guide}</p><small>英文 · 外部原站 · 选读</small></article>`).join('')}${!extras.length?'<p>优先使用本课给定材料与下面的教材选读。练习不要求注册新平台、购买订阅或上传个人信息。</p>':''}`);
   material.querySelector('.lesson-pagination').before(resources);
-  if(n===3)installModel();
-  if(n>=4&&n<=7)installMap();
-  const destination=n===2?'#agent-visuals':n===3?'#lab':n>=4&&n<=7?'#route-lab':[8,9].includes(n)?'#interactive':'#activity';
+  const literature=lesson.caseStudy==='literature';
+  if(n===3&&!literature)installModel();
+  if(n>=4&&n<=7&&!literature)installMap();
+  const destination=literature?'#literature-lab':n===2?'#agent-visuals':n===3?'#lab':n>=4&&n<=7?'#route-lab':[8,9].includes(n)?'#interactive':'#activity';
   const shortcuts=create('nav','resource-shortcuts',`${lesson.source?link('assets/lecture-'+String(lesson.source).padStart(2,'0')+'.pdf','课件 PDF'):'<a href="#materials">本课资料</a>'}<a href="${destination}">${n>=2&&n<=9?'动手实验':'动手实践'}</a><a href="#activity">课堂练习</a><a href="#materials">选读与视频</a>`);
   shortcuts.setAttribute('aria-label','本课资源快捷入口');
   byId('overview').querySelector('.learning-box').after(shortcuts);
   const sectionMenu=[['overview','本课要点'],['warmup','课前热身'],...(n===2?[['agent-visuals','图解与演示']]:n===3?[['lab','水罐实验'],['model','问题建模'],['state-model-lab','状态建模挑战'],['concepts','看懂搜索'],['practice','计算自查']]:n>=4&&n<=7?[['route-lab','地图实验']]:[]),['activity','课堂练习'],...([8,9].includes(n)?[['interactive','博弈实验']]:[]),['faq','常见疑问'],['materials','课件与选读']];
   const sectionNav=document.querySelector('.lesson-nav nav');sectionNav.replaceChildren();
+  if(literature)sectionMenu.splice(2,0,['literature-lab','文献 Agent 实验']);
   sectionMenu.forEach(([id,label])=>{if(!byId(id))return;const a=document.createElement('a');a.href='#'+id;a.textContent=label;sectionNav.append(a);});
   if(location.hash)requestAnimationFrame(()=>byId(location.hash.slice(1))?.scrollIntoView());
 

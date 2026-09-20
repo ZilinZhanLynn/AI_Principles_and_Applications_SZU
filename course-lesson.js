@@ -6,7 +6,7 @@ const root=document.getElementById('lesson-content');
 if(!lesson){root.innerHTML='<h1>没有这个课次</h1><p>请选择课程目录中的课次。</p><a class="button" href="index.html#schedule">返回课程目录</a>';}
 else {
  const l=lesson,t=l.task;
- const widgetHTML=l.n===3?CourseWidgets.jug:[8,9].includes(l.n)?CourseWidgets.game:'';
+ const widgetHTML=l.n===3&&l.caseStudy!=='literature'?CourseWidgets.jug:[8,9].includes(l.n)?CourseWidgets.game:'';
  const widgetNav=document.getElementById('widget-nav');widgetNav.hidden=!widgetHTML;
 
  document.title=`${String(l.n).padStart(2,'0')} · ${l.title} | 人工智能原理与应用`;
@@ -18,7 +18,14 @@ else {
  ${widgetHTML?`<div id="interactive" class="lesson-widgets">${widgetHTML}</div>`:''}
  <section id="faq" class="lesson-section"><p class="eyebrow">常见疑问</p><h2>${esc(l.faq[0])}</h2><p>${esc(l.faq[1])}</p></section>
  <section id="materials" class="lesson-section"><p class="eyebrow">课件与拓展</p><h2>课内回顾，课外选读。</h2><div class="source-block">${source}</div><details class="support"><summary>课后拓展 · 自愿选做，无需提交</summary><p>${esc(l.extra)}</p></details><div class="lesson-pagination">${l.n>1?`<a href="lesson.html?n=${l.n-1}">← 第 ${l.n-1} 课</a>`:'<a href="index.html">← 课程首页</a>'}${l.n<14?`<a href="lesson.html?n=${l.n+1}">第 ${l.n+1} 课 →</a>`:'<a href="index.html#schedule">返回课程目录 →</a>'}</div></section>`;
- if(l.n===3)window.initializeJug();
+ if(t.answerSections){
+  const answerPanel=Array.from(document.querySelectorAll('#activity details.support')).find(panel=>panel.querySelector('summary').textContent==='我已尝试，查看自查解释');
+  if(answerPanel)answerPanel.innerHTML='<summary>我已尝试，查看自查解释</summary>'+t.answerSections.map(section=>`<section><h3>${esc(section.title)}</h3>${section.text?`<p>${esc(section.text)}</p>`:''}${section.items?`<ul>${section.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul>`:''}</section>`).join('');
+ }
+ if([2,3,4].includes(l.n)){
+  document.querySelector('#materials .source-block').insertAdjacentHTML('beforeend','<div class="completion"><h3>文献检索与综述辅助 Agent · 项目任务书</h3><p>了解从文献总结、对比到综述框架的完整实践。以下保留老师提供的任务书原文；其中的篇数、字数等作为项目方案参考，是否必做、提交时间与评分要求以课堂通知为准，不新增本课必做作业。</p><a class="button secondary" href="literature-agent-project.md" download="文献检索Agent课程项目任务书.md">下载项目任务书（Markdown） ↓</a></div>');
+ }
+ if(l.n===3&&l.caseStudy!=='literature')window.initializeJug();
  if([8,9].includes(l.n)){
   if(l.n===8)document.querySelector('[data-game="alphabeta"]').remove();
   window.initializeSearchWidgets(l.n===8?10:11);
