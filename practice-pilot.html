@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>第 2 课 · 在线课堂实践</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="practice-pilot.css">
+  <script src="cloudbase-sdk.js" defer></script>
+  <script src="practice-pilot.js" defer></script>
+</head>
+<body>
+  <header class="header"><a class="brand" href="index.html">人工智能原理与应用</a><nav><a href="lesson.html?n=2#literature-lab">返回第 2 课</a></nav></header>
+  <main class="wrap pilot">
+    <p class="eyebrow">LESSON 02 · 在线课堂实践</p><h1>为文献检索 Agent 写一张任务卡</h1>
+    <section id="login-panel" class="account-panel">
+      <div><h2>先登录课程账号</h2><p>使用教师发放的学号账号。你的草稿、修改过程和正式提交会保存在课程后台，其他学生无法查看。</p></div>
+      <form id="login-form" class="login-form"><label>学号<input id="username" required autocomplete="username" inputmode="numeric" maxlength="24"></label><label>密码<input id="password" required type="password" autocomplete="current-password"></label><button class="button" type="submit">登录并开始</button></form>
+    </section>
+    <section id="loading-panel" class="account-panel" hidden><p>正在连接课程后台……</p></section>
+    <div id="workspace" hidden>
+      <div class="session-bar"><div><span class="online-dot" aria-hidden="true"></span><strong id="student-name"></strong><span id="student-number"></span></div><button id="logout" type="button" class="text-button">退出登录</button></div>
+      <div class="note"><strong>这是一项在线课堂活动。</strong>“保存草稿”可继续修改；“正式提交”会生成不可覆盖的新版本。教师可以查看你的提交与过程记录。请勿填写账号密码、未授权论文全文或其他敏感信息。</div>
+      <p>任务：设计一个从授权材料中检索论文、核验证据并辅助整理综述的 Agent。先独立填写 PEAS，再借助 AI 检查，最后说明你为什么修改。</p>
+      <form id="practice-form">
+        <section><h2>① 先独立尝试</h2><p>每项至少给一个具体例子。注意区分“评价表现的标准”和“执行动作的接口”。</p>
+          <div class="peas-grid"><label>P · 绩效度量<textarea id="p" maxlength="4000" required rows="3" placeholder="如何判断找得好、答得可靠？"></textarea></label><label>E · 环境<textarea id="e" maxlength="4000" required rows="3" placeholder="在哪些材料或数据库中工作？"></textarea></label><label>A · 执行器<textarea id="a" maxlength="4000" required rows="3" placeholder="通过哪些接口执行查询、读取或输出？"></textarea></label><label>S · 传感器<textarea id="s" maxlength="4000" required rows="3" placeholder="通过什么接口接收问题、结果与原文？"></textarea></label></div>
+          <label>环境判断与假设<textarea id="environment" maxlength="4000" required rows="3" placeholder="是否完全可观察？是否动态？写清任务期间的假设和理由。"></textarea></label><button type="button" id="save-first" class="button secondary">锁定独立初稿</button><p id="first-status" class="muted"></p>
+        </section>
+        <section><h2>② 借助 AI 检查</h2><p>锁定初稿后，把生成的提示词复制到你使用的 AI 工具。核查内容后再发送，只使用授权或测试材料；再把最关键的问答摘录回来。</p><button type="button" id="make-prompt" class="button secondary">生成检查提示词</button><label>可复制的提示词<textarea id="prompt" rows="6" readonly></textarea></label><button type="button" id="copy-prompt" class="button secondary">复制提示词</button><label>AI 工具 / 模型（可选）<input id="model" maxlength="100" placeholder="按工具实际显示填写，不确定可留空"></label><label>关键问答摘录<textarea id="dialogue" maxlength="20000" rows="6" placeholder="我问：… / AI 回答：…；没有使用 AI 可留空。"></textarea></label><p>AI 建议不等于标准答案。未使用 AI 也可以完成任务。</p></section>
+        <section><h2>③ 修改并说明理由</h2><label>最终任务卡<textarea id="final" maxlength="12000" required rows="7" placeholder="写出完整 PEAS、环境判断和必要假设。"></textarea></label><label>我修改了什么，为什么？<textarea id="reason" maxlength="4000" required rows="4" placeholder="指出采纳或拒绝了哪条建议及依据；如未修改，也请说明。"></textarea></label><label class="confirm-row"><input id="confirmed" type="checkbox" required> 我已检查内容，确认将这个版本提交给教师。</label></section>
+        <div class="pilot-actions"><button type="button" id="save-draft" class="button secondary">保存草稿</button><button type="submit" class="button">正式提交新版本</button></div>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <section><h2>我的提交版本</h2><p class="muted">正式提交的版本不能覆盖或删除；如需修正，请提交一个新版本。</p><div id="history"></div></section>
+    </div>
+  </main>
+</body>
+</html>

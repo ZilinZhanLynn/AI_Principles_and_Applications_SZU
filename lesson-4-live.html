@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#003366">
+  <title>第 4 课 · 搜索求解：盲目搜索</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="course-live-base.css?v=20261016-5">
+  <link rel="stylesheet" href="lesson-4-live.css?v=20261016-5">
+  <script src="lesson-4-live.js?v=20261016-5" defer></script>
+</head>
+<body>
+  <a class="skip" href="#deck">跳到课堂内容</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark"><img src="assets/szu-emblem.png" alt="深圳大学校徽"></span><span><b>人工智能原理与应用</b><small>第 4 课 · 搜索求解：盲目搜索</small></span></a>
+    <nav><a href="lesson.html?n=4">本课资料</a><a href="index.html#schedule">课程目录</a><button id="fullscreen" type="button">全屏</button></nav>
+  </header>
+
+  <main id="deck" class="deck">
+    <section class="slide" data-slide="1" data-source-lines="P01 · 96–111">
+      <div class="copy">
+        <h1>本讲主题：盲目搜索（无信息搜索）</h1>
+        <ul>
+          <li>上一讲我们建立了搜索框架：<b>边界（frontier）、路径、问题解、解的代价；搜索树</b>。</li>
+          <li>搜索算法主要性能评价指标：<b>完备性、代价最优性、时空复杂度</b>。
+            <ul>
+              <li><b>完备性（completeness）</b>：当问题存在解的时候，这个算法是否能保证找到解；当不存在解时，是否能保证报告失败？</li>
+              <li><b>代价最优性（cost optimality）</b>：搜索将总是找到成本最低的解决方案吗？（当动作有成本/路径耗散（path cost）时）</li>
+              <li><b>时间复杂度（time complexity）</b>：找到解需要花费多少时间？</li>
+              <li><b>空间复杂度（space complexity）</b>：在执行搜索的过程中需要多少内存？</li>
+            </ul>
+          </li>
+          <li><b>有信息搜索（informed search）</b>：它利用启发式函数（heuristic function, h(n)），去估计某个非目标状态离目标状态的"希望程度"/"代价"，从而指导搜索顺序。</li>
+          <li><b>无信息搜索（uninformed search）/盲目搜索（blind search）</b>：它对问题的状态空间只有基本的定义（初始状态、目标测试、后继函数、路径代价），没有任何关于目标位置的额外知识。因此它不能判断一个非目标状态是否更接近目标，只能依靠系统性遍历或规则来扩展节点。</li>
+        </ul>
+      </div>
+      <aside class="interaction-panel search-mode-demo" aria-label="有信息搜索与无信息搜索定义卡">
+        <div class="mode-buttons"><button id="search-mode-informed" type="button" aria-controls="search-mode-panel">有信息搜索</button><button id="search-mode-uninformed" type="button" aria-controls="search-mode-panel">无信息搜索</button></div>
+        <output id="search-mode-panel" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="2" data-source-lines="P02 · 126–142">
+      <div class="copy">
+        <h2>广度优先搜索（breadth-first search, BFS）——图搜索算法的一个实例</h2>
+        <h3>基本思想</h3>
+        <ul><li>从初始状态开始，一层一层地向外扩展，即先扩展距离初始状态最近的节点，再扩展更远的节点。</li><li>使用队列（FIFO / First In, First Out）作为存储结构，存储等待探索的状态。<ul><li>FIFO 举例：先入库的货物先出库，避免存货过期。</li></ul></li></ul>
+        <h3>步骤</h3>
+        <ol><li>将初始状态放入队列。</li><li>重复以下操作，直到队列为空或找到目标：<ul><li>从队列头部取出一个节点。</li><li>如果该节点是目标，结束搜索。</li><li>否则，扩展该节点的所有后继状态，并将它们加入队列尾部。</li></ul></li></ol>
+      </div>
+      <aside class="interaction-panel structure-demo" aria-label="队列 FIFO 动画">
+        <div id="bfs-queue-track" class="structure-track" role="img" aria-label="队列中的节点"></div>
+        <div class="interaction-actions"><button id="bfs-queue-next" type="button">下一步</button><button id="bfs-queue-auto" type="button">自动播放</button><button id="bfs-queue-reset" type="button">重置</button></div>
+        <output id="bfs-queue-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="3" data-source-lines="P03 · 157–169">
+      <div class="copy">
+        <h2>广度优先搜索（breadth-first search, BFS）</h2>
+        <ul><li>先把初始状态放到边界上。</li><li>把所有能从初始状态恰好一步能到达的状态都放到边界上；把路径添加到边界。</li><li>把所有能从初始状态恰好二步能到达的状态都放到边界上；把路径添加到边界。</li><li>把所有能从初始状态恰好三步能到达的状态都放到边界上；把路径添加到边界。</li><li>……</li></ul>
+        <blockquote><p>图解：图中为无代价（单位步数）图，START 出发，逐层扩展至 GOAL（第 4 层找到解）。STEP 0 → STEP 1 → STEP 2 → STEP 3 → STEP 4 → <b>Solved!</b></p><p>请注意，在此示例中，边界上的结点（或状态）包括对父级的引用。</p></blockquote>
+      </div>
+      <aside class="interaction-panel frame-player" aria-label="BFS 逐层扩展图解">
+        <svg id="bfs-layer-graph" viewBox="0 0 900 510" role="img" aria-label="BFS 状态空间图逐层扩展"></svg>
+        <p id="bfs-layer-caption" class="visual-caption">先把初始状态放到边界上。</p>
+        <div id="bfs-layer-steps" class="step-controls" role="group" aria-label="选择 BFS 扩展步骤"><button id="bfs-layer-step-0" type="button" data-step="0">STEP 0</button><button id="bfs-layer-step-1" type="button" data-step="1">STEP 1</button><button id="bfs-layer-step-2" type="button" data-step="2">STEP 2</button><button id="bfs-layer-step-3" type="button" data-step="3">STEP 3</button><button id="bfs-layer-step-4" type="button" data-step="4">STEP 4</button><button id="bfs-layer-step-solved" type="button" data-step="solved">Solved</button></div>
+        <div class="interaction-actions"><button id="bfs-layer-next" type="button">下一步</button><button id="bfs-layer-auto" type="button">自动播放</button><button id="bfs-layer-reset" type="button">重置</button></div>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="4" data-source-lines="P04 · 200–215">
+      <div class="copy">
+        <h2>BFS 解决水罐问题</h2>
+        <ul><li>初始状态 =（0,0），目标状态 =（*，2）</li><li>动作（后继函数）：空-3-Gallon, 空-4-Gallon, 满-3-Gallon, 满-4-Gallon, 转-3-到-4, 转 4-到-3。</li></ul>
+        <h3>边界（队列）逐层扩展</h3>
+        <ol id="p04-boundary-steps"><li>边界 = {&lt;(0,0)&gt;}</li><li>边界 = {&lt;(0,0),(3,0)&gt;, &lt;(0,0),(0,4)&gt;}<br>（取出 &lt;(0,0)&gt;，扩展后继节点…）</li><li>边界 = {&lt;(0,0),(0,4)&gt;, &lt;(0,0),(3,0),(0,0)&gt;, &lt;(0,0),(3,0),(3,4)&gt;, &lt;(0,0),(3,0),(0,3)&gt;}</li><li>边界 = {&lt;(0,0),(3,0),(0,0)&gt;, &lt;(0,0),(3,0),(3,4)&gt;, &lt;(0,0),(3,0),(0,3)&gt;, &lt;(0,0),(0,4),(0,0)&gt;, &lt;(0,0),(0,4),(3,4)&gt;, &lt;(0,0),(0,4),(3,1)&gt;}</li></ol>
+        <p><b>广度优先搜索把状态按层排序，逐层探索状态空间。</b></p>
+        <blockquote>说明：继续扩展（BFS 深度 6）即可到达 (0,2)（目标），完整最短解路径见课堂自测第 11 题。</blockquote>
+      </div>
+      <aside class="interaction-panel jug-frontier-demo" aria-label="BFS 水罐与队列演示">
+        <div class="demo-mode-switch" role="tablist" aria-label="选择演示内容">
+          <button id="bfs-jug-mode-practice" type="button" role="tab" aria-controls="bfs-jug-practice">① 自己操作水罐</button>
+          <button id="bfs-jug-mode-queue" type="button" role="tab" aria-controls="bfs-jug-queue">② 查看 BFS 边界</button>
+        </div>
+        <section id="bfs-jug-practice" class="jug-demo-stage" role="tabpanel" aria-labelledby="bfs-jug-mode-practice">
+          <div class="stage-heading"><span>当前状态</span><b id="bfs-jug-current-state">(0,0)</b></div>
+          <div class="jug-display"><div id="bfs-jug-3" class="jug" aria-label="3 加仑水罐"><i></i><b id="bfs-jug-3-amount">0</b></div><div id="bfs-jug-4" class="jug" aria-label="4 加仑水罐"><i></i><b id="bfs-jug-4-amount">0</b></div></div>
+          <div id="bfs-jug-actions" class="jug-actions" role="group" aria-label="水罐动作"><button id="bfs-jug-empty-3" type="button">空-3</button><button id="bfs-jug-empty-4" type="button">空-4</button><button id="bfs-jug-fill-3" type="button">满-3</button><button id="bfs-jug-fill-4" type="button">满-4</button><button id="bfs-jug-pour-3-4" type="button">转3→4</button><button id="bfs-jug-pour-4-3" type="button">转4→3</button></div>
+          <div class="history-strip"><span>已走路径</span><div id="bfs-jug-history" aria-live="polite"></div></div>
+          <output id="bfs-jug-status" role="status" aria-live="polite"></output>
+        </section>
+        <section id="bfs-jug-queue" class="boundary-demo-stage" role="tabpanel" aria-labelledby="bfs-jug-mode-queue" hidden>
+          <figure><img src="assets/lesson4/image10.jpg" alt="BFS 水罐问题 Level 0、1、2 分层示意"></figure>
+          <div class="stage-heading"><span>边界（队列）</span><b id="bfs-frontier-step-label">第 1 / 4 步</b></div>
+          <div id="bfs-frontier-list" class="frontier-list" aria-live="polite"></div>
+          <div class="interaction-actions"><button id="bfs-frontier-prev" type="button">上一步</button><button id="bfs-frontier-next" type="button">下一步</button><button id="bfs-frontier-reset" type="button">重置</button></div>
+          <output id="bfs-frontier-status" role="status" aria-live="polite"></output>
+        </section>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="5" data-source-lines="P05 · 236–266">
+      <div class="copy">
+        <h2>广度优先搜索的性质</h2>
+        <div class="property-card">
+          <h3>Big-O 表示法</h3>
+          <ul><li>树的表达可以用来评估时空复杂度。</li><li>什么是时间复杂度？衡量算法运行时需要执行多少步操作（扩展多少个结点）。</li><li>在 BFS 中，最主要的操作就是生成和检查节点。</li><li>所以 BFS 的时间复杂度 ≈ 需要扩展的节点总数。</li></ul>
+          <p>BFS 的搜索过程可以抽象为一棵<b>状态空间树</b>：</p>
+          <ul><li>根节点：起点 START（深度 0，路径长度 1）。</li><li>每个节点最多生成 b 个子节点（这里 b 称为<b>最大分支因子</b>）。</li><li>如果解的深度为 d，那么 BFS 要把深度从 0 到 d 的所有节点都扩展出来（直到找到解），所以 <b>d = 路径长度 − 1</b>。</li></ul>
+          <p>在一棵 b 分支的树里，每个结点的最大后续状态数目（即最大分支因子），假设 d 是解的深度：</p>
+          <ul><li>深度 0：有 1 个节点（根）。</li><li>深度 1：最多有 b 个节点。</li><li>深度 2：最多有 b<sup>2</sup> 个节点。</li><li>深度 3：最多有 b<sup>3</sup> 个节点。</li><li>……</li><li>深度 d：最多有 b<sup>d</sup> 个节点。</li></ul>
+        </div>
+        <div class="property-card">
+          <p>因此，总节点数是一个等比数列：</p>
+          <blockquote>1 + b + b<sup>2</sup> + b<sup>3</sup> + … + b<sup>d−1</sup> + b<sup>d</sup> = (b<sup>d+1</sup> − 1)/(b − 1)</blockquote>
+          <p>当 b 很大、d 也很大时，总节点数近似为 b<sup>d+1</sup>（呈指数级增长）。</p>
+          <p><b>时间复杂度：N ≈ O(b<sup>d+1</sup>) / 近似写法 O(b<sup>d</sup>)</b></p>
+        </div>
+      </div>
+      <aside class="interaction-panel complexity-demo" aria-label="BFS 节点数演示">
+        <div class="formula-board" aria-label="Big-O、等比求和与性质"><div><b>状态空间树</b><span>1, b, b², …, bᵈ</span></div><div><b>等比求和</b><span>1 + b + … + bᵈ = (bᵈ⁺¹ − 1)/(b − 1)</span></div><div><b>评价</b><span>完备性 · 代价最优性 · 时间 · 空间</span></div></div>
+        <label for="bfs-branching">b</label><input id="bfs-branching" type="range" min="2" max="10" value="2">
+        <label for="bfs-depth">d</label><input id="bfs-depth" type="range" min="1" max="10" value="4">
+        <output id="bfs-node-total" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="6" data-source-lines="P05 · 268–277">
+      <div class="copy wide bfs-properties-slide">
+        <h2>广度优先搜索的性质</h2>
+        <div class="property-summary-grid">
+          <article class="property-card"><p><b>完备性</b>：如果解存在，BFS 一定能找到。</p></article>
+          <article class="property-card property-wide"><p><b>代价最优性</b>：在所有代价相等的情况下，BFS 保证找到最短解。</p><ul><li>先检查深度 0（起点），再检查深度 1（一步之遥的状态），再是深度 2……直到深度 d。</li><li>一旦 BFS 找到目标节点，就保证这个目标是到达目标的最短路径（以步数为代价）。</li><li>如果每一步代价不同（例如走一步花 1 元，走另一条捷径可能花 5 元），BFS 找到的只是步数最少的路径，而不一定是代价最小的路径。</li></ul></article>
+          <article class="property-card"><p><b>时间复杂度：O(b<sup>d</sup>)</b>，其中 b 是分支因子，d 是最浅目标深度。</p></article>
+          <article class="property-card"><p><b>空间复杂度：同样为 O(b<sup>d</sup>)</b>，因为需要存储所有层的节点。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="7" data-source-lines="P06 · 301–314">
+      <div class="copy">
+        <h2>BFS 的现实问题：空间复杂性</h2>
+        <p>举例来说：每个结点平均分支数 10，一个平均每秒可以扩展十万结点的搜索树，如果每个结点要求 100 字节的话：</p>
+        <table><thead><tr><th>深度</th><th>结点</th><th>时间</th><th>空间</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>0.01 毫秒</td><td>100 bytes</td></tr><tr><td>6</td><td>10<sup>6</sup></td><td>10 秒</td><td>100 MB</td></tr><tr><td>8</td><td>10<sup>8</sup></td><td>17 分钟</td><td>10 GB</td></tr><tr><td>9</td><td>10<sup>9</sup></td><td>3 小时</td><td>100 GB</td></tr></tbody></table>
+        <p class="key-emphasis"><b>在大多数应用程序中，通常在我们用完时间之前就用完了空间。</b></p>
+      </div>
+      <aside class="interaction-panel memory-demo" aria-label="BFS 深度与内存增长演示">
+        <label for="bfs-memory-depth">深度</label><input id="bfs-memory-depth" type="range" min="1" max="9" value="1">
+        <dl><div><dt>结点数</dt><dd id="bfs-memory-nodes"></dd></div><div><dt>时间</dt><dd id="bfs-memory-time"></dd></div><div><dt>空间</dt><dd id="bfs-memory-space"></dd></div></dl>
+        <div class="meter" aria-label="内存增长"><i id="bfs-memory-bar"></i></div><output id="bfs-memory-warning" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="8" data-source-lines="P07 · 330–345">
+      <div class="copy">
+        <h2>深度优先搜索（depth-first search, DFS）</h2>
+        <h3>基本思想</h3>
+        <ul><li>从初始状态开始，尽可能沿着一条路径向下走到底（到达目标或死路），再回溯到上一个分支点继续探索。</li><li>使用栈（LIFO / Last In, First Out）作为存储结构，或者递归实现（最后放进去的元素，最先被取出来）。</li></ul>
+        <h3>步骤</h3>
+        <ol><li>将初始状态放入栈。</li><li>重复以下操作，直到栈为空或找到目标：<ul><li>从栈顶取出一个节点。</li><li>如果该节点是目标，结束搜索。</li><li>否则，将它的后继状态依次压入栈顶。</li></ul></li></ol>
+      </div>
+      <aside class="interaction-panel structure-demo" aria-label="队列与栈对比动画">
+        <div class="mode-buttons"><button id="dfs-mode-lifo" type="button">栈（LIFO）</button><button id="dfs-mode-fifo" type="button">队列（FIFO）</button></div>
+        <div id="dfs-stack-track" class="structure-track" role="img" aria-label="栈或队列中的节点"></div>
+        <div class="interaction-actions"><button id="dfs-stack-next" type="button">下一步</button><button id="dfs-stack-auto" type="button">自动播放</button><button id="dfs-stack-reset" type="button">重置</button></div>
+        <output id="dfs-stack-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="9" data-source-lines="P08 · 360–370">
+      <div class="copy">
+        <h2>深度优先搜索（depth-first search, DFS）</h2>
+        <ul><li>初始状态 =（0,0），目标状态 =（*，2），动作（后继函数）：空-3-Gallon, 空-4-Gallon, 满-3-Gallon, 满-4-Gallon, 转-3-到-4, 转 4-到-3</li><li>边界 = {&lt;(0,0)&gt;}</li><li>边界 = {&lt;(0,0),(3,0)&gt;, &lt;(0,0),(0,4)&gt;}</li><li>边界 = {&lt;(0,0),(3,0),(0,0)&gt;, &lt;(0,0),(3,0),(3,4)&gt;, &lt;(0,0),(3,0),(0,3)&gt;, &lt;(0,0),(0,4)&gt;}</li><li>边界 = {&lt;(0,0),(3,0),(0,0),(3,0)&gt;, &lt;(0,0),(3,0),(0,0),(0,4)&gt;, &lt;(0,0),(3,0),(3,4)&gt;, &lt;(0,0),(3,0),(0,3)&gt;, &lt;(0,0),(0,4)&gt;}</li></ul>
+        <p><b>红色结点是回溯点（这些结点保留在边界上）。</b></p>
+      </div>
+      <aside class="interaction-panel dfs-jug-demo" aria-label="DFS 水罐边界栈动画">
+        <div class="stage-heading"><span>当前边界</span><b id="dfs-frontier-step-label">第 1 / 4 步</b></div>
+        <div class="dfs-demo-layout">
+          <svg id="dfs-jug-tree" viewBox="0 0 600 430" role="img" aria-label="DFS 水罐搜索树与红色回溯点"></svg>
+          <div class="dfs-stack-stage" aria-label="DFS 边界栈">
+            <b>栈顶</b>
+            <div id="dfs-frontier-list" class="frontier-list" aria-live="polite"></div>
+            <span>栈底</span>
+          </div>
+        </div>
+        <div id="dfs-frontier-steps" class="step-controls" role="group" aria-label="选择 DFS 边界步骤"><button type="button" data-dfs-step="0">1</button><button type="button" data-dfs-step="1">2</button><button type="button" data-dfs-step="2">3</button><button type="button" data-dfs-step="3">4</button></div>
+        <div class="interaction-actions"><button id="dfs-frontier-prev" type="button">上一步</button><button id="dfs-frontier-next" type="button">下一步</button><button id="dfs-frontier-reset" type="button">重置</button></div>
+        <output id="dfs-frontier-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="10" data-source-lines="P09 · 388–395">
+      <div class="copy">
+        <h2>示例：网格世界</h2>
+        <ul><li>假设状态是网格中的一个格子，你能东北西南移动，那么 DFS 算法怎么操作呢？假设你每次都先往东，然后再北、西、南。</li><li><b>扩展顺序：E, N, W, S</b></li><li>BFS 算法又会怎么做呢？</li></ul>
+      </div>
+      <aside class="interaction-panel grid-demo" aria-label="DFS 网格世界动画">
+        <figure><img src="assets/lesson4/image16.jpg" alt="网格世界与扩展顺序 E、N、W、S"></figure>
+        <div id="dfs-grid" class="grid-world" role="img" aria-label="6 行 5 列简化网格"></div>
+        <div class="interaction-actions"><button id="dfs-grid-next" type="button">下一步（DFS 走法）</button><button id="dfs-grid-auto" type="button">自动播放</button><button id="dfs-grid-bfs" type="button">BFS 对比</button><button id="dfs-grid-reset" type="button">重置</button></div>
+        <output id="dfs-grid-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="11" data-source-lines="P10 · 413–447">
+      <div class="copy">
+        <h2>性质</h2>
+        <h3>算法是完备的吗？</h3>
+        <ul><li>如果问题的状态空间是<b>有限的</b>（节点数有限），那么 DFS 最终一定会把所有节点都遍历一遍。即使它可能绕来绕去，但因为状态总数有限，它总会"回到头"，最终能找到目标。</li><li>如果状态空间是<b>无限深的树</b>：DFS 会盯住某一条路径一直往下走，可能永远走不出来。这样，即使解在另一条浅层路径上，DFS 也可能永远找不到。</li><li><b>所以在无限深度的状态空间中，DFS 不保证完备。</b></li></ul>
+        <h3>代价最优性？</h3><ul><li><b>不保证最优解</b>，因为 DFS 可能先找到一条较深但代价高的路径。</li></ul>
+        <h3>时间复杂度？</h3><ul><li>O(b<sup>m</sup>)，m 是最长路径的长度。（类似 BFS 的计算方法，最坏情况下要访问所有节点。）</li></ul>
+        <h3>DFS v.s. BFS</h3><ul><li>当 m ≫ d 时，DFS 可能比 BFS 慢得多，因为它可能探索到无关的深层节点。</li><li>如果解分布得比较密集，DFS 有机会比 BFS 更快找到一个解，因为它不必像 BFS 那样逐层全面展开。</li></ul>
+        <h3>空间复杂度？</h3>
+        <ul><li><b>O(bm)，线性的！</b> —— DFS 的数据结构通常是一个栈（DFS 的显著优势）。</li><li>一次只探索一条路径。在最坏情况下，它需要记录：<ul><li>路径上的所有结点：深度最多 m，所以至少要存储 O(m)。</li><li>每一层的兄弟结点（尚未展开的后继）：在深度为 0 的根节点，可能有 b−1 个兄弟未展开；在深度为 1 的节点，同样可能有 b−1 个兄弟未展开；以此类推，深度为 m 时仍可能有兄弟节点等待回溯。</li><li>所以在最坏情况下，除了当前路径长度 m，还要额外存储大约 (b−1) × m 个兄弟节点 → <b>O(bm)</b>。</li></ul></li></ul>
+        <blockquote>图中红框标出的即各层的<b>兄弟节点</b>（回溯点）。</blockquote>
+      </div>
+      <aside class="interaction-panel dfs-property-demo" aria-label="DFS 性质与空间复杂度图解">
+        <svg id="dfs-space-visual" viewBox="0 0 820 540" role="img" aria-label="DFS 路径栈与每层兄弟节点示意"></svg>
+        <div class="step-controls" role="group" aria-label="空间复杂度推导"><button id="dfs-space-path" type="button">路径结点 O(m)</button><button id="dfs-space-siblings" type="button">每层兄弟 (b−1)</button><button id="dfs-space-total" type="button">合计 O(bm)</button></div>
+        <output id="dfs-space-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="12" data-source-lines="P11 · 463–507">
+      <div class="copy">
+        <h2>DFS 的问题：</h2>
+        <ul><li>在无限状态空间里，DFS 可能沿着一条路径无限深入，永远回头→找不到解。</li><li>在有限但很深的空间里，DFS 可能先找到一个很长的解，而忽视更短的解。</li></ul>
+        <h2>解决办法：</h2>
+        <ul><li>设定一个最大搜索深度 ℓ。</li><li>超过深度 ℓ 的路径就不再展开。</li><li>这样可以避免"路径太长"或"无限下探"的问题。</li></ul>
+        <p><b>➡ 使用深度受限搜索！</b></p>
+        <h2>深度受限搜索（DLS）的规则</h2>
+        <ul><li>从根节点开始（深度 = 0）。</li><li>沿着路径往下扩展，但只允许走到深度 ≤ ℓ。</li><li>到达深度 ℓ 时，不再继续往下展开。</li><li>因此，所有路径都被"截断"在 ℓ 层以内。</li></ul>
+        <h3>优点</h3><ul><li>避免 DFS 在无限路径里走不出来。</li><li>节省内存空间。</li></ul>
+        <h3>缺点</h3><ul><li>只能找到深度 ≤ ℓ 的解。</li><li>如果真正的解在更深处（&gt; ℓ），DLS 就会失败。</li></ul>
+        <h3>伪代码</h3>
+        <pre id="dls-code"><code><span id="dls-line-1">DLS (Frontier, Successors, Goal?)   /* Call with Frontier = {&lt;START&gt;} */</span>
+<span id="dls-line-2">WHILE (Frontier not EMPTY) {</span>
+<span id="dls-line-3">    n = select first node from Frontier</span>
+<span id="dls-line-4">    Curr = terminal state of n</span>
+<span id="dls-line-5">    If (Goal?(Curr)) return n</span>
+<span id="dls-line-6">    If Depth(n) &lt; ℓ          // Don't add successors if Depth(n) = ℓ!!</span>
+<span id="dls-line-7">        Frontier = (Frontier – {n}) U Successors(Curr)</span>
+<span id="dls-line-8">    Else</span>
+<span id="dls-line-9">        Frontier = Frontier – {n}; CutOffOccured = TRUE.</span>
+<span id="dls-line-10">}</span>
+<span id="dls-line-11">return FAIL</span></code></pre>
+      </div>
+      <aside class="interaction-panel dls-demo" aria-label="深度受限搜索伪代码逐行演示">
+        <label for="dls-limit">深度限制 ℓ</label><input id="dls-limit" type="range" min="0" max="3" value="2">
+        <div id="dls-tree" class="limited-tree" role="img" aria-label="受深度限制的搜索树"></div>
+        <div class="interaction-actions"><button id="dls-next" type="button">下一步</button><button id="dls-reset" type="button">重置</button></div>
+        <output id="dls-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="13" data-source-lines="P12 · 529–565">
+      <div class="copy">
+        <h2>迭代加深搜索（IDS，Iterative Deepening Search）</h2>
+        <h3>原理：通过扩展深度受限搜索来解决 DFS 和 BFS 的问题</h3>
+        <ul><li>从深度限制 ℓ = 0 开始，我们迭代地增加深度限制，对每个深度限制执行深度受限搜索。</li><li>如果找到解决方案，或者如果深度受限搜索失败且没有截断任何结点，则停止。</li><li>如果没有结点被截断，搜索将检查状态空间中的所有路径，并且发现没有解决方案 → <b>不存在解决方案</b>。</li></ul>
+        <h3>完备性？</h3><ul><li><b>是的</b>——如果深度限制为 ℓ 的解存在的话（即解存在且深度已知上限时，IDS 一定找到最浅解）。</li></ul>
+        <h3>时间复杂度？</h3>
+        <ul><li>深度 0 的节点访问了 d+1 次。</li><li>深度 1 的节点访问了 d 次。</li><li>深度 2 的节点访问了 d−1 次。</li><li>……</li><li>深度 d 的节点访问 1 次。</li><li>(d+1)b<sup>0</sup> + db<sup>1</sup> + (d−1)b<sup>2</sup> + … + b<sup>d</sup> = <b>O(b<sup>d</sup>)</b></li><li>例如：b=4, d=10：(11)·4<sup>0</sup> + 10·4<sup>1</sup> + 9·4<sup>2</sup> + … + 4<sup>10</sup> = <b>1,864,131</b></li><li>4<sup>10</sup> = 1,048,576，大多数结点位于底层。</li></ul>
+        <h3>空间复杂度？</h3><ul><li>IDS 的存储方式和 DFS 完全相同，空间复杂度 <b>O(bd)</b>。</li></ul>
+        <p><b>IDS —— 结合 BFS（完备、找到最浅解）和 DFS（省空间）优点的折中方案</b></p>
+        <h3>BFS 比 IDS 可以探索更多的状态！</h3>
+        <ul><li>时间复杂度 IDS：(d+1)b<sup>0</sup> + db<sup>1</sup> + (d−1)b<sup>2</sup> + … + b<sup>d</sup> = O(b<sup>d</sup>)</li><li>时间复杂度 BFS：1 + b + b<sup>2</sup> + b<sup>3</sup> + … + b<sup>d</sup> + b(b<sup>d</sup>−1) = O(b<sup>d+1</sup>)</li><li>当 BFS 展开第 d 层的节点时，会生成第 d+1 层的所有子节点（即使这些子节点不会被继续展开，因为在第 d 层已经找到了解）。</li><li>设 b=4, d=10：<ul><li>IDS：(11)·4<sup>0</sup> + 10·4<sup>1</sup> + 9·4<sup>2</sup> + … + 4<sup>10</sup> = <b>1,864,131</b>（产生的状态数）</li><li>BFS：1 + 4 + 4<sup>2</sup> + … + 4<sup>10</sup> + 4(4<sup>10</sup>−1) = <b>5,592,401</b>（产生的状态数）</li></ul></li></ul>
+      </div>
+      <aside class="interaction-panel ids-demo" aria-label="迭代加深搜索深度限制演示">
+        <div class="stage-heading"><span>逐轮加深</span><b id="ids-round-label">第 1 / 11 轮</b></div>
+        <div id="ids-round-strip" class="ids-round-strip" role="group" aria-label="选择深度限制"><button type="button" data-ids-limit="0">ℓ=0</button><button type="button" data-ids-limit="1">ℓ=1</button><button type="button" data-ids-limit="2">ℓ=2</button><button type="button" data-ids-limit="3">ℓ=3</button><button type="button" data-ids-limit="10">ℓ=10</button></div>
+        <svg id="ids-tree" viewBox="0 0 900 470" role="img" aria-label="IDS 逐轮加深搜索树"></svg>
+        <div class="ids-readout"><div><span>当前深度限制</span><b id="ids-current-limit">ℓ = 0</b></div><div><span>本轮节点数</span><b id="ids-round-nodes">1</b></div><div><span>累计节点数</span><b id="ids-total-nodes">1</b></div></div>
+        <div class="interaction-actions"><button id="ids-prev" type="button">上一轮</button><button id="ids-next" type="button">下一轮</button><button id="ids-auto" type="button">自动播放</button><button id="ids-reset" type="button">重置</button></div>
+        <output id="ids-status" role="status" aria-live="polite"></output>
+        <div class="ids-comparison"><span>IDS：1,864,131</span><span>BFS：5,592,401</span></div>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="14" data-source-lines="P13 · 587–603">
+      <div class="copy">
+        <h2>一致代价搜索（UCS，uniform-cost search）</h2>
+        <h3>当存在路径代价时……</h3>
+        <ul><li>UCS 在边界中要把路径代价进行<b>升序</b>的排序。</li><li>始终扩展<b>代价最低</b>的节点。</li><li>如果每个动作都具有相同代价，那么 UCS 等价于 BFS。</li></ul>
+        <table><thead><tr><th>特性</th><th>BFS 队列（FIFO）</th><th>优先队列（Priority Queue，PQ）</th></tr></thead><tbody><tr><th>出队顺序</th><td>按照生成顺序</td><td>按照累计代价最小</td></tr><tr><th>目标保证</th><td>最浅解</td><td>最小代价解</td></tr><tr><th>数据结构</th><td>普通队列</td><td>优先队列（通常用最小堆实现）</td></tr><tr><th>示例场景</th><td>每一步代价相同</td><td>每一步代价不同</td></tr></tbody></table>
+      </div>
+      <aside class="interaction-panel ucs-intro" aria-label="BFS 与 UCS 对比">
+        <svg id="ucs-intro-graph" viewBox="0 0 760 290" role="img" aria-label="UCS 起始带权有向图"></svg>
+        <div class="queue-comparison" aria-label="普通队列与优先队列对比"><article><b>BFS 队列（FIFO）</b><div id="ucs-fifo-track" class="queue-track"></div></article><article><b>优先队列（Priority Queue，PQ）</b><div id="ucs-priority-track" class="queue-track"></div></article></div>
+        <div id="ucs-comparison" class="comparison-controls" role="group" aria-label="查看各项对比说明"><button id="ucs-compare-order" type="button">出队顺序</button><button id="ucs-compare-goal" type="button">目标保证</button><button id="ucs-compare-structure" type="button">数据结构</button><button id="ucs-compare-example" type="button">示例场景</button></div>
+        <output id="ucs-comparison-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="15" data-source-lines="P14 · 620–658">
+      <div class="copy">
+        <h2>一致代价搜索（UCS）——扩展过程（逐步）</h2>
+        <blockquote>迭代规则：每轮 <b>1. Pop least-cost state from PQ；2. Add successors</b>（从优先队列取出累计代价最小的节点，加入其后继）。下方面板同步显示当前边界（Frontier）。</blockquote>
+        <table id="ucs-steps-table"><thead><tr><th>步骤</th><th>弹出的节点</th><th>扩展后的边界（Frontier）</th><th>说明</th></tr></thead><tbody><tr data-ucs-step="0"><td>0</td><td>—</td><td>{(START,0)}</td><td>初始边界</td></tr><tr data-ucs-step="1"><td>1</td><td>START</td><td>{(p,1), (d,3), (e,9)}</td><td>扩展 START：p(1)、d(3)、e(9)</td></tr><tr data-ucs-step="2"><td>2</td><td>p</td><td>{(d,3), (e,9), (q,16)}</td><td>p→q 代价 15，q=1+15=16</td></tr><tr data-ucs-step="3"><td>3</td><td>d</td><td>{(b,4), (e,5), (c,11), (q,16)}</td><td>d→b(1)、d→e(2)、d→c(8)</td></tr><tr data-ucs-step="4"><td>4</td><td>b</td><td>{(e,5), (a,6), (c,11), (q,16)}</td><td>b→a(2)，a=4+2=6</td></tr><tr data-ucs-step="5"><td>5</td><td>e</td><td>{(h,6), (a,6), (c,11), (r,14), (q,16)}</td><td>e→h(1)，h=5+1=6；e→r(9)，r=5+9=14</td></tr><tr data-ucs-step="6"><td>6</td><td>h</td><td>{(q,10), (a,6), (c,11), (r,14)}</td><td>h→q(4)，q=6+4=10（更新）；h→p 不再更新（见下）</td></tr><tr data-ucs-step="7"><td>7</td><td>a</td><td>{(q,10), (c,11), (r,14)}</td><td>a 弹出；a 的后继不会产生更小代价，边界其余项不变</td></tr><tr data-ucs-step="8"><td>8</td><td>q</td><td>{(c,11), (r,13)}</td><td>q→r(3)，r=10+3=13（更新 14→13）</td></tr><tr data-ucs-step="9"><td>9</td><td>c</td><td>{(r,13)}</td><td>c→r(2)，r=11+2=13（不变）</td></tr><tr data-ucs-step="10"><td>10</td><td>r</td><td>{(t,18)}</td><td>r→t(5)，t=13+5=18</td></tr><tr data-ucs-step="11"><td>11</td><td>t</td><td>{(GOAL,23)}</td><td>t→GOAL(5)，GOAL=18+5=23</td></tr><tr data-ucs-step="12"><td>12</td><td>GOAL</td><td>{}</td><td><b>弹出 GOAL → 返回解，结束</b></td></tr></tbody></table>
+        <h3>关键观察</h3>
+        <ul><li><b>在已达表（reached）的帮助下</b>，我们了解到通过 d 到达 e 的路径比以前找到的路径代价更小！因此调整了状态 e 的代价（9 → 5）。</li><li><b>问：为什么更新 q 而不是 p？它们都是 h 的后继状态。</b><ul><li>答：p 早已以更小代价 (p,1) 被从优先队列中取出并扩展，不再更新；q 的原代价 16（经 p→q）可被更小路径 h→q 更新为 10。</li></ul></li><li><b>结束了吗？</b> —— 并没有，<b>只有边界为空才算结束</b>（目标节点被从边界中取出时才返回，即 "Terminate only when goal is removed from Frontier"）。</li></ul>
+      </div>
+      <aside class="interaction-panel ucs-player" aria-label="UCS 优先队列逐步动画">
+        <svg id="ucs-graph" viewBox="0 0 1000 470" role="img" aria-label="UCS 带代价有向图"></svg>
+        <div id="ucs-frontier" class="priority-frontier" aria-live="polite"></div>
+        <div class="interaction-actions"><button id="ucs-next" type="button">下一步</button><button id="ucs-reset" type="button">重置</button></div>
+        <output id="ucs-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="16" data-source-lines="P15 · 693–706">
+      <div class="copy">
+        <h2>一致代价搜索（UCS）</h2>
+        <h3>代价最优性？</h3>
+        <ul><li>UCS 总是从优先队列里取出<b>路径代价最小</b>的节点进行扩展。</li><li>条件：边的代价（动作代价 step cost）必须<b>非负</b>。</li><li>原因：UCS 总是从优先队列里取出路径代价最小的节点进行扩展。当目标节点第一次被取出时，它的路径代价已经是最小的（否则 UCS 早就会先扩展更便宜的路径）。</li><li>结论：<b>在非负代价下，UCS 一定找到最优解（最小总代价的解）。</b></li></ul>
+        <h3>空间复杂度？</h3>
+        <ul><li>UCS 必须把所有边界（frontier）节点（优先队列）存起来，因为随时可能要从中取出最小代价的节点。</li><li>所以空间复杂度 ≈ 时间复杂度。</li><li>UCS 的最大代价是存储整个边界，和 BFS 一样，<b>空间开销非常大</b>。</li></ul>
+      </div>
+      <aside class="interaction-panel ucs-optimality" aria-label="UCS 最优性推理">
+        <div id="ucs-proof-cards" class="proof-cards" role="group" aria-label="代价最优性三段论"><button id="ucs-proof-premise" type="button"><b>前提</b><span>边的代价（动作代价 step cost）必须非负。</span></button><button id="ucs-proof-reason" type="button"><b>推理</b><span>UCS 总是从优先队列里取出路径代价最小的节点进行扩展。</span></button><button id="ucs-proof-conclusion" type="button"><b>结论</b><span>在非负代价下，UCS 一定找到最优解（最小总代价的解）。</span></button></div>
+        <output id="ucs-proof-status" role="status" aria-live="polite"></output>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="17" data-source-lines="P16 · 723–745">
+      <div class="copy">
+        <h2>总结：搜索算法</h2>
+        <table><thead><tr><th>算法</th><th>核心特点</th><th>优势</th><th>应用</th></tr></thead><tbody><tr><th>BFS（广度优先）</th><td>用队列，逐层展开，保证找到最浅解</td><td>找最少步数的解（所有边代价相同）</td><td>社交网络最短关系链（如 Facebook/LinkedIn 好友推荐） / 迷宫、棋盘最少步数解</td></tr><tr><th>DFS（深度优先）</th><td>用栈或递归，沿一条路径走到底再回溯，空间省</td><td>快速找到一个解，不保证最浅解</td><td>程序分析 / 推理链搜索</td></tr><tr><th>DLS（深度受限）</th><td>在 DFS 基础上设定深度上限</td><td>避免 DFS 掉进无限深度</td><td>爬虫设深度限制，防止死循环</td></tr><tr><th>IDS（迭代加深）</th><td>多次限制深度的 DFS，结合 BFS 的代价最优性和 DFS 的省空间</td><td>在不知道解深度时，既保证找到最浅解，又节省空间</td><td>路径规划（在空间有限时比 BFS 更好） / 机器人探索未知环境</td></tr><tr><th>UCS（一致代价）</th><td>用优先队列，每次扩展总代价最小的节点</td><td>找总代价最小的解，适合边代价不等</td><td>地图/GPS 路径规划（高德/Google Maps，最短路径） / 机器人运动规划（能量消耗最小路径）</td></tr></tbody></table>
+        <ul><li><b>定义</b>：状态空间、初始状态、动作（集）、转移模型结果 (s,a)、目标状态、路径代价</li><li><b>搜索类型</b>：<ul><li><b>盲目搜索（无信息搜索）</b>——只用深度和路径代价：广度优先搜索、一致代价搜索、深度优先搜索、深度受限搜索、迭代加深搜索、双向搜索</li><li><b>启发式搜索（有信息搜索）</b>——扩展可能计划：树搜索 / 图搜索（避免重复探索）→ 已达、边界</li></ul></li><li><b>评估函数</b>：完备性、代价最优性、复杂度</li></ul>
+      </div>
+      <aside class="interaction-panel framework-map" aria-label="搜索算法框架图">
+        <svg id="search-framework" viewBox="0 0 780 620" role="img" aria-label="定义、搜索类型、评估函数三栏框架"></svg>
+        <p class="visual-caption">点击“盲目搜索”展开算法。</p>
+        <div id="framework-algorithms" class="algorithm-links" role="group" aria-label="跳转到算法页面" hidden><button id="framework-bfs" type="button" data-target-slide="2">广度优先搜索</button><button id="framework-ucs" type="button" data-target-slide="14">一致代价搜索</button><button id="framework-dfs" type="button" data-target-slide="8">深度优先搜索</button><button id="framework-dls" type="button" data-target-slide="12">深度受限搜索</button><button id="framework-ids" type="button" data-target-slide="13">迭代加深搜索</button><button id="framework-bidirectional" type="button" disabled>双向搜索</button></div>
+      </aside>
+    </section>
+
+    <section class="slide" data-slide="18" data-source-lines="P17 · 756–784">
+      <div class="copy wide">
+        <h2>课堂自测（逐题作答，即时判分）</h2>
+        <div id="lesson4-quiz-progress" class="quiz-progress-summary" role="status" aria-live="polite">已完成 0 / 12 题 · 答对 0 题 · 需要复习 0 题</div>
+        <nav id="lesson4-quiz-status-strip" class="quiz-status-strip" aria-label="课堂自测各题答题状态"></nav>
+        <div id="lesson4-quiz" class="quiz-list">
+          <details id="lesson4-quiz-q1" data-quiz="1"><summary>1. <b>选择</b>：BFS 使用的数据结构是？A. 栈　B. 队列（FIFO）　C. 优先队列　D. 哈希表</summary><p>答案：B。先入队的节点先被取出扩展。</p></details>
+          <details id="lesson4-quiz-q2" data-quiz="2"><summary>2. <b>选择</b>：DFS 使用的数据结构是（可多选）？A. 栈　B. 递归　C. 队列　D. 优先队列</summary><p>答案：A、B。栈（LIFO），或用递归实现。</p></details>
+          <details id="lesson4-quiz-q3" data-quiz="3"><summary>3. <b>判断</b>：在单位代价（每步代价相同）下，BFS 是完备且代价最优的。</summary><p>答案：对。BFS 逐层扩展，找到最浅解即最短步数解。</p></details>
+          <details id="lesson4-quiz-q4" data-quiz="4"><summary>4. <b>判断</b>：在无限深的状态空间中，DFS 可能永远找不到解。</summary><p>答案：对。DFS 会沿一条路径无限深入，可能错过浅层解，不保证完备。</p></details>
+          <details id="lesson4-quiz-q5" data-quiz="5"><summary>5. <b>判断</b>：DLS 只能找到深度 ≤ ℓ 的解；真正的解在更深处时 DLS 会失败。</summary></details>
+          <details id="lesson4-quiz-q6" data-quiz="6"><summary>6. <b>判断</b>：解存在且深度已知上限时，IDS 一定找到最浅解。</summary></details>
+          <details id="lesson4-quiz-q7" data-quiz="7"><summary>7. <b>选择</b>：IDS 的时间/空间复杂度是？A. O(b<sup>d</sup>)/O(bd)　B. O(bd)/O(b<sup>d</sup>)　C. O(b<sup>d+1</sup>)/O(bd)　D. O(bd)/O(bd)</summary></details>
+          <details id="lesson4-quiz-q8" data-quiz="8"><summary>8. <b>选择＋判断</b>：UCS 始终取出哪种节点？A. 最先入队　B. 累计路径代价最小　C. 深度最浅　D. 随机；动作代价都相同时，UCS 等价于 BFS。</summary></details>
+          <details id="lesson4-quiz-q9" data-quiz="9"><summary>9. <b>判断</b>：UCS 在边代价为负时也保证最优。</summary><p>答案：错。UCS 代价最优性要求动作代价非负。</p></details>
+          <details id="lesson4-quiz-q10" data-quiz="10"><summary>10. <b>判断</b>：UCS 中仅"找到目标"不算结束，必须等目标节点从边界（优先队列）中取出才返回。</summary></details>
+          <details id="lesson4-quiz-q11" data-quiz="11"><summary>11. <b>选择（水罐）</b>：用 BFS 求解水罐问题，初始 (0,0)、目标 (*,2)，动作同 P04。最短解需要多少步？A. 5 步　B. 6 步　C. 7 步　D. 8 步</summary><p>答案（6 步）：(0,0) → 满-3 → (3,0) → 转3→4 → (0,3) → 满-3 → (3,3) → 转3→4 → (2,4) → 空-4 → (2,0) → 转3→4 → (0,2)。每步代价相同，BFS 保证为最短（步数最少）。</p><p>说明：另一条常见解为 (0,0)→满-4→(0,4)→转4→3→(3,1)→空-3→(0,1)→转4→3→(1,0)→满-4→(1,4)→转4→3→(3,2)→空-3→(0,2)，共 7 步，合法但非最短。</p><button id="quiz-jug-autoplay" type="button">自动演示</button><div id="quiz-jug-demo" class="jug-solution" aria-live="polite"></div></details>
+          <details id="lesson4-quiz-q12" data-quiz="12"><summary>12. <b>选择＋判断</b>：设 b=4、d=10，BFS 与 IDS 谁生成的状态更多？A. BFS　B. IDS　C. 相同　D. 无法比较；IDS 的状态数 = 1,864,131。</summary><p>答案：IDS = 1,864,131；BFS = 5,592,401。BFS 更多（多出第 d+1 层子节点 4(4<sup>10</sup>−1)）。</p></details>
+        </div>
+        <div class="quiz-navigation"><button id="lesson4-quiz-prev" type="button">上一题</button><button id="lesson4-quiz-next" type="button">下一题</button></div>
+        <output id="lesson4-quiz-summary" class="quiz-score-summary" role="status" aria-live="polite"></output>
+      </div>
+    </section>
+  </main>
+
+  <footer class="controls"><button id="prev" type="button">← 上一页</button><div><span id="page-number">1 / 18</span><i><b id="progress"></b></i></div><button id="next" type="button">下一页 →</button><small>方向键切换</small></footer>
+</body>
+</html>

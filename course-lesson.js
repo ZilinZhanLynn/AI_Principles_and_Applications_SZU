@@ -25,6 +25,7 @@ else {
  if([2,3,4].includes(l.n)){
   document.querySelector('#materials .source-block').insertAdjacentHTML('beforeend','<div class="completion"><h3>文献检索与综述辅助 Agent · 项目任务书</h3><p>了解从文献总结、对比到综述框架的完整实践。以下保留老师提供的任务书原文；其中的篇数、字数等作为项目方案参考，是否必做、提交时间与评分要求以课堂通知为准，不新增本课必做作业。</p><a class="button secondary" href="literature-agent-project.md" download="文献检索Agent课程项目任务书.md">下载项目任务书（Markdown） ↓</a></div>');
  }
+ if(l.n===2){document.getElementById('activity').insertAdjacentHTML('beforeend','<div class="completion"><h3>个人实践记录 · 本机试点</h3><p>保存独立初稿、记录 AI 建议，再提交修改稿和理由。当前仅为流程演示，无登录或云端保存；请用化名测试。</p><a class="button secondary" href="practice-pilot.html">打开实践记录试点 →</a></div>');}
  if(l.n===3)window.initializeJug();
  if([8,9].includes(l.n)){
   if(l.n===8)document.querySelector('[data-game="alphabeta"]').remove();

@@ -1,0 +1,775 @@
+/*
+ * 《人工智能原理与应用》课程放映页共用基础样式 v1.0
+ * 来源：lesson-3-live.css 的稳定公共规则 + course-site-builder 视觉 Token。
+ * 本文件不得加入某一讲专属的地图、棋盘、算法图或页面编号选择器。
+ */
+
+@font-face {
+  font-family: "Course Text";
+  src: local("Times New Roman");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+2100-214F, U+2190-22FF;
+}
+
+@font-face {
+  font-family: "Course Text";
+  src: local("Microsoft YaHei"), local("Microsoft YaHei UI");
+}
+
+@font-face {
+  font-family: "Course Quote";
+  src: local("Times New Roman");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+2100-214F, U+2190-22FF;
+}
+
+@font-face {
+  font-family: "Course Quote";
+  src: local("KaiTi"), local("STKaiti");
+}
+
+:root {
+  --primary: #003366;
+  --secondary: #950040;
+  --danger: #FF0000;
+  --success: #00AD00;
+  --text: #212834;
+  --surface: #F1F3F5;
+  --white: #FFFFFF;
+  --soft: rgba(0, 51, 102, .07);
+  --good: rgba(0, 173, 0, .08);
+  --bad: rgba(255, 0, 0, .06);
+  --muted: rgba(33, 40, 52, .74);
+  --line: rgba(0, 51, 102, .24);
+  --shadow: 0 12px 28px rgba(0, 51, 102, .12);
+
+  --topbar-h: 56px;
+  --controls-h: 56px;
+  --radius: 6px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --body-size: clamp(24px, 1.7vw, 32px);
+  --small-size: clamp(20px, 1.28vw, 24px);
+  --section-size: clamp(38px, 2.75vw, 52px);
+  --title-size: clamp(46px, 3.7vw, 68px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--surface);
+  color: var(--text);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-family: "Course Text", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: var(--body-size);
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+a:hover {
+  color: var(--secondary);
+}
+
+button,
+input,
+textarea,
+select {
+  min-height: 44px;
+  color: inherit;
+  font: inherit;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button {
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+button:not(:disabled):hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+button.primary-action {
+  background: var(--primary);
+  color: var(--white);
+}
+
+button.selected,
+[role="button"].selected {
+  border-color: var(--secondary);
+  background: rgba(149, 0, 64, .08);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(149, 0, 64, .16);
+}
+
+button.correct,
+output.correct,
+.correct[role="status"] {
+  border-color: var(--success) !important;
+  border-left: 6px solid var(--success) !important;
+  background: var(--good) !important;
+  color: var(--text) !important;
+}
+
+button.wrong,
+output.wrong,
+.wrong[role="status"] {
+  border-color: var(--danger) !important;
+  border-left: 6px solid var(--danger) !important;
+  background: var(--bad) !important;
+  color: var(--text) !important;
+}
+
+button:disabled {
+  border-color: rgba(33, 40, 52, .28) !important;
+  background: rgba(33, 40, 52, .06) !important;
+  color: rgba(33, 40, 52, .5) !important;
+  cursor: not-allowed !important;
+  opacity: 1;
+}
+
+:focus-visible {
+  outline: 4px solid var(--danger);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+code,
+kbd,
+samp,
+var,
+.math,
+svg text {
+  font-family: "Times New Roman", "Microsoft YaHei", "PingFang SC", serif;
+}
+
+blockquote,
+.definition-quote,
+.plain-definition,
+.source-note {
+  font-family: "Course Quote", KaiTi, STKaiti, "Times New Roman", "Microsoft YaHei", serif;
+}
+
+::selection {
+  background: var(--secondary);
+  color: var(--white);
+}
+
+.skip {
+  position: fixed;
+  z-index: 100;
+  top: 8px;
+  left: -10000px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 2px solid var(--primary);
+  background: var(--white);
+  color: var(--primary);
+}
+
+.skip:focus {
+  left: 12px;
+}
+
+.topbar {
+  position: fixed;
+  z-index: 40;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: var(--topbar-h);
+  padding: 0 clamp(24px, 4vw, 64px);
+  border-bottom: 2px solid var(--primary);
+  background: rgba(255, 255, 255, .96);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand b,
+.brand small {
+  display: block;
+}
+
+.brand b {
+  color: var(--primary);
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.15;
+}
+
+.topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.topbar nav a,
+.topbar nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 16px;
+}
+
+.topbar nav a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.topbar nav button {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.deck {
+  height: 100dvh;
+  overflow-y: auto;
+  padding-top: var(--topbar-h);
+  scroll-padding-top: var(--topbar-h);
+  scroll-snap-type: y mandatory;
+  scrollbar-color: var(--primary) var(--surface);
+  scrollbar-width: thin;
+}
+
+.slide {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 56px);
+  height: calc(100dvh - var(--topbar-h));
+  min-height: 600px;
+  padding: 24px clamp(32px, 4.5vw, 72px) calc(var(--controls-h) + 20px);
+  overflow: hidden;
+  scroll-margin-top: var(--topbar-h);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.slide + .slide::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: clamp(32px, 4.5vw, 72px);
+  left: clamp(32px, 4.5vw, 72px);
+  height: 2px;
+  background: rgba(0, 51, 102, .18);
+}
+
+.slide > .copy,
+.slide > aside {
+  min-width: 0;
+  min-height: 0;
+  max-height: calc(100dvh - 168px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+  scrollbar-color: var(--primary) rgba(0, 51, 102, .08);
+  scrollbar-width: thin;
+}
+
+.copy.wide {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--secondary);
+  font-size: clamp(22px, 1.75vw, 28px);
+  font-weight: 900;
+  letter-spacing: .04em;
+  line-height: 1.2;
+}
+
+.copy h1,
+.copy h2 {
+  max-width: 1050px;
+  margin: 0 0 16px;
+  color: var(--primary);
+  font-size: var(--title-size);
+  line-height: 1.14;
+  letter-spacing: -.025em;
+}
+
+.copy h2 {
+  font-size: var(--section-size);
+}
+
+h3 {
+  color: var(--primary);
+  font-size: clamp(22px, 1.8vw, 32px);
+  line-height: 1.3;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+.lead {
+  max-width: 980px;
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: var(--body-size);
+  line-height: 1.65;
+}
+
+.note,
+.status-line {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: var(--small-size);
+  line-height: 1.55;
+}
+
+.plain-definition,
+.definition-quote,
+.source-note,
+.callout {
+  margin: 12px 0 0;
+  padding: 12px 16px;
+  border: 0;
+  border-left: 6px solid var(--secondary);
+  background: var(--white);
+  color: var(--text);
+  font-size: var(--small-size);
+  line-height: 1.6;
+}
+
+.callout.info {
+  border-left-color: var(--primary);
+}
+
+.callout.success {
+  border-left-color: var(--success);
+  background: var(--good);
+}
+
+.callout.danger {
+  border-left-color: var(--danger);
+  background: var(--bad);
+}
+
+.teaching-panel,
+.graphic-panel,
+.example-panel,
+.interaction-panel,
+.quiz-panel,
+.lab-panel,
+.self-test {
+  padding: 16px;
+  border: 2px solid var(--line);
+  border-top: 6px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.slide table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  background: var(--white);
+}
+
+.slide th,
+.slide td {
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.slide th {
+  color: var(--primary);
+  background: var(--soft);
+}
+
+.slide pre {
+  overflow: auto;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--white);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.slide output[role="status"] {
+  display: block;
+  min-height: 56px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-left: 5px solid var(--secondary);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--small-size);
+  line-height: 1.55;
+}
+
+.reveal,
+.primary-action {
+  min-height: 44px;
+  padding: 8px 16px;
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--white);
+}
+
+.reveal-panel {
+  max-width: 980px;
+  padding: 16px 18px;
+  border-left: 6px solid var(--secondary);
+  background: var(--white);
+  color: var(--text);
+  font-size: var(--small-size);
+  line-height: 1.6;
+}
+
+.controls {
+  position: fixed;
+  z-index: 50;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--controls-h);
+  gap: 16px;
+  padding: 8px 24px;
+  border-top: 2px solid var(--primary);
+  background: rgba(255, 255, 255, .97);
+}
+
+.controls button {
+  min-width: 126px;
+  min-height: 44px;
+  padding: 7px 16px;
+  font-size: 16px;
+}
+
+.controls > div {
+  width: 180px;
+  text-align: center;
+}
+
+.controls span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.controls i {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  background: rgba(0, 51, 102, .16);
+}
+
+.controls i b {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--secondary);
+  transition: width .2s ease;
+}
+
+.controls small {
+  position: absolute;
+  right: 32px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+@media (min-width: 1280px) {
+  .slide p,
+  .slide li,
+  .slide label,
+  .slide legend,
+  .slide td,
+  .slide th,
+  .slide output[role="status"],
+  .slide figcaption {
+    font-size: max(22px, var(--small-size));
+    line-height: 1.5;
+  }
+
+  .slide pre {
+    font-size: max(22px, var(--small-size));
+    line-height: 1.5;
+  }
+
+  .slide button,
+  .slide input,
+  .slide textarea,
+  .slide select {
+    font-size: max(20px, var(--small-size));
+  }
+
+  .slide svg text {
+    font-size: max(16px, 1em);
+  }
+}
+
+@media (min-width: 1051px) and (max-height: 800px) {
+  :root {
+    --body-size: 24px;
+    --small-size: 22px;
+    --section-size: 42px;
+    --title-size: 54px;
+  }
+
+  .slide {
+    gap: 20px;
+    padding: 12px 32px calc(var(--controls-h) + 10px);
+  }
+
+  .slide > .copy,
+  .slide > aside {
+    max-height: calc(100dvh - 140px);
+  }
+
+  .eyebrow {
+    margin-bottom: 5px;
+    font-size: 26px;
+  }
+
+  .copy h1,
+  .copy h2 {
+    margin-bottom: 9px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .deck {
+    scroll-snap-type: y proximity;
+  }
+
+  .slide {
+    grid-template-columns: 1fr;
+    align-items: start;
+    height: auto;
+    min-height: calc(100dvh - var(--topbar-h));
+    overflow: visible;
+    padding-bottom: calc(var(--controls-h) + 28px);
+  }
+
+  .slide > .copy,
+  .slide > aside {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .copy.wide {
+    grid-column: auto;
+  }
+
+  .slide > aside,
+  .teaching-panel,
+  .graphic-panel,
+  .example-panel,
+  .interaction-panel,
+  .quiz-panel,
+  .lab-panel,
+  .self-test {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .controls small {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --topbar-h: 60px;
+    --controls-h: 60px;
+    --body-size: 18px;
+    --small-size: 16px;
+    --section-size: 32px;
+    --title-size: 37.333px;
+  }
+
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .brand-mark {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand b {
+    font-size: 16px;
+  }
+
+  .brand small,
+  .topbar nav a {
+    display: none;
+  }
+
+  .topbar nav button {
+    padding-inline: 10px;
+  }
+
+  .slide {
+    gap: 18px;
+    padding: 20px 16px calc(var(--controls-h) + 24px);
+  }
+
+  .slide + .slide::before {
+    right: 16px;
+    left: 16px;
+  }
+
+  .eyebrow {
+    font-size: 22px;
+  }
+
+  .controls {
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  .controls button {
+    min-width: 96px;
+    padding-inline: 8px;
+  }
+
+  .controls > div {
+    width: 96px;
+  }
+}
+
+@media (max-width: 430px) {
+  .brand > span:last-child {
+    display: none;
+  }
+
+  .controls button {
+    min-width: 84px;
+    font-size: 16px;
+  }
+
+  .controls > div {
+    width: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media print {
+  .topbar,
+  .controls {
+    display: none;
+  }
+
+  .deck {
+    height: auto;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .slide {
+    height: auto;
+    min-height: 0;
+    break-after: page;
+    overflow: visible;
+    padding: 24px;
+  }
+
+  .slide > .copy,
+  .slide > aside {
+    max-height: none;
+    overflow: visible;
+  }
+}
