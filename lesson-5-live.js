@@ -41,6 +41,7 @@
   frontierCard.before(frontierToggle);frontierCard.hidden=true;frontierToggle.setAttribute("aria-expanded","false");
   frontierToggle.addEventListener("click",()=>{frontierCard.hidden=!frontierCard.hidden;frontierToggle.textContent=frontierCard.hidden?"展开前沿研究":"收起前沿研究";frontierToggle.setAttribute("aria-expanded",String(!frontierCard.hidden));});
   const reviewItems=[...document.querySelectorAll("#p14 .review-summary li")];
+  reviewItems.forEach((item,index)=>item.setAttribute("value",String(index+1)));
   if(reviewItems.length===8){
     const controls=document.createElement("div");controls.className="review-controls";
     [["核心概念 1–4",0],["应用与延伸 5–8",1]].forEach(([label,group])=>{const button=document.createElement("button");button.type="button";button.textContent=label;button.addEventListener("click",()=>showReview(group));controls.append(button);});
@@ -60,7 +61,7 @@
       {node:"Arad",rows:["展开 Arad → Sibiu h=253、Timisoara h=329、Zerind h=374"],edges:["Arad-Zerind","Arad-Sibiu","Arad-Timisoara"],frontier:frontierOrder([["Sibiu",253],["Timisoara",329],["Zerind",374]])},
       {node:"Sibiu",rows:["展开 Sibiu → Fagaras h=176、Rimnicu h=193、Oradea h=380"],edges:["Sibiu-Fagaras","Sibiu-Rimnicu","Sibiu-Oradea"],frontier:frontierOrder([["Fagaras",176],["Rimnicu",193],["Timisoara",329],["Zerind",374],["Oradea",380]])},
       {node:"Fagaras",rows:["展开 Fagaras → Bucharest h=0"],edges:["Fagaras-Bucharest"],frontier:frontierOrder([["Bucharest",0],["Rimnicu",193],["Timisoara",329],["Zerind",374],["Oradea",380]])},
-      {node:"Bucharest",rows:["取出目标 Bucharest，到目标！"],edges:[],frontier:[],done:"贪心路径：Arad→Sibiu→Fagaras→Bucharest，代价 450"}
+      {node:"Bucharest",rows:["取出目标 Bucharest，到目标！"],edges:[],frontier:frontierOrder([["Rimnicu",193],["Timisoara",329],["Zerind",374],["Oradea",380]]),done:"贪心路径：Arad→Sibiu→Fagaras→Bucharest，代价 450"}
     ],
     astar:[
       {node:"Arad",rows:["展开 Arad → Sibiu f=140+253=393","Timisoara f=118+329=447","Zerind f=75+374=449"],edges:["Arad-Sibiu","Arad-Timisoara","Arad-Zerind"],frontier:frontierOrder([["Sibiu",393],["Timisoara",447],["Zerind",449]])},
@@ -68,7 +69,7 @@
       {node:"Rimnicu",rows:["Pitesti f=317+100=417","Craiova f=366+160=526"],edges:["Rimnicu-Pitesti","Rimnicu-Craiova"],frontier:frontierOrder([["Fagaras",415],["Pitesti",417],["Timisoara",447],["Zerind",449],["Craiova",526],["Oradea",671]])},
       {node:"Fagaras",rows:["展开 Fagaras → Bucharest f=450+0=450","边界里还有 Pitesti f=417，继续！"],edges:["Fagaras-Bucharest"],frontier:frontierOrder([["Pitesti",417],["Timisoara",447],["Zerind",449],["Bucharest",450],["Craiova",526],["Oradea",671]])},
       {node:"Pitesti",rows:["展开 Pitesti → Bucharest f=418+0=418","目标现在仍在边界中；下一步取出它"],edges:["Pitesti-Bucharest"],frontier:frontierOrder([["Bucharest",418],["Timisoara",447],["Zerind",449],["Craiova",526],["Oradea",671]])},
-      {node:"Bucharest",rows:["取出目标 Bucharest（f=418），目标出队，结束"],edges:[],frontier:[],done:"最优路径：Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest，代价 418"}
+      {node:"Bucharest",rows:["取出目标 Bucharest（f=418），目标出队，结束"],edges:[],frontier:frontierOrder([["Timisoara",447],["Zerind",449],["Craiova",526],["Oradea",671]]),done:"最优路径：Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest，代价 418"}
     ]
   };
   function initMap(type) {
@@ -78,6 +79,10 @@
     const frontierTitle=document.createElement("h3");frontierTitle.textContent="当前待选节点（边界）";
     const frontier=document.createElement("div");frontier.className="frontier-list";frontier.setAttribute("aria-live","polite");
     scoreboard.insertBefore(frontierTitle,oldTitle);scoreboard.insertBefore(frontier,oldTitle);
+    const resetButton=document.createElement("button");resetButton.type="button";resetButton.className="map-reset";resetButton.textContent="重置演示";
+    button.parentElement.append(resetButton);
+    const showInitialFrontier=()=>{const row=document.createElement("p");row.className="frontier-row next-choice";row.textContent=`起点 · Arad · ${type==="astar"?"f":"h"}=366`;frontier.replaceChildren(row);};
+    showInitialFrontier();
     map.replaceChildren(); mapEdges.forEach(([a,b,miles])=>{const [x1,y1]=cities[a],[x2,y2]=cities[b],key=`${a}-${b}`;map.append(svgEl("line",{x1,y1,x2,y2,class:"map-edge","data-edge":key}));const distance=svgEl("text",{x:(x1+x2)/2,y:(y1+y2)/2-8,class:"map-weight","data-edge":key,"aria-hidden":"true"});distance.textContent=String(miles);map.append(distance);});
     const gbfsLabels=new Set(["Arad","Sibiu","Timisoara","Zerind","Fagaras","Rimnicu","Oradea","Bucharest"]);
     Object.entries(cities).forEach(([name,[x,y]])=>{const g=svgEl("g",{class:"map-city","data-city":name});g.append(svgEl("circle",{cx:x,cy:y,r:16}));const label=svgEl("text",{x,y:y-32});label.textContent=name;g.append(label);const h=heuristic[name]??"";if(h!==""&&(type!=="gbfs"||gbfsLabels.has(name))){const t=svgEl("text",{x,y:y+34,class:"h-label"});t.textContent=`h=${h}`;g.append(t);}map.append(g);});
@@ -90,10 +95,10 @@
     const render=()=>{
       if(step>=data.length){
         step=0; scoreHistory.length=0; seen.clear(); generatedEdges.clear();
-        map.querySelectorAll(".map-city").forEach(g=>{g.classList.remove("active","neighbor");});
+        map.querySelectorAll(".map-city").forEach(g=>{g.classList.remove("active","neighbor","next");});
         map.querySelectorAll(".map-edge").forEach(e=>{e.classList.remove("active","generated");});
         map.querySelectorAll(".map-weight").forEach(e=>e.classList.remove("active"));
-        score.replaceChildren(); frontier.replaceChildren(); path.hidden=true; path.textContent="";
+        score.replaceChildren(); showInitialFrontier(); path.hidden=true; path.textContent="";
         lessonSteps.forEach(line=>line.classList.remove("is-revealed","is-current"));
         lessonConclusion?.classList.remove("is-revealed");
         if(compareButton){compareButton.disabled=true;$("astar-compare").textContent="";}
@@ -103,7 +108,7 @@
       const currentStep=step,item=data[currentStep];
       seen.add(item.node);
       mapEdges.forEach(([a,b])=>{if(item.edges.includes(`${a}-${b}`)||item.edges.includes(`${b}-${a}`))seen.add(a===item.node?b:a);});
-      map.querySelectorAll(".map-city").forEach(g=>{g.classList.toggle("active",g.dataset.city===item.node);g.classList.toggle("next",g.dataset.city===item.frontier[0]?.name);g.classList.toggle("neighbor",seen.has(g.dataset.city)&&g.dataset.city!==item.node);});
+      map.querySelectorAll(".map-city").forEach(g=>{g.classList.toggle("active",g.dataset.city===item.node);g.classList.toggle("next",!item.done&&g.dataset.city===item.frontier[0]?.name);g.classList.toggle("neighbor",seen.has(g.dataset.city)&&g.dataset.city!==item.node);});
       item.edges.forEach(edge=>generatedEdges.add(edge));
       map.querySelectorAll(".map-edge").forEach(e=>{
         const key=e.dataset.edge, reverse=key.split("-").reverse().join("-");
@@ -112,15 +117,17 @@
       });
       map.querySelectorAll(".map-weight").forEach(e=>{const key=e.dataset.edge,reverse=key.split("-").reverse().join("-");e.classList.toggle("active",item.edges.includes(key)||item.edges.includes(reverse));});
       item.rows.forEach(text=>scoreHistory.push({text,step:currentStep}));
-      frontier.replaceChildren(...item.frontier.map(({name,value},index)=>{const row=document.createElement("p");row.className=`frontier-row${index===0?" next-choice":""}`;row.textContent=`${index===0?"下一步 · ":""}${name} · ${type==="astar"?"f":"h"}=${value}`;return row;}));
-      if(item.frontier.length===0){const row=document.createElement("p");row.className="frontier-row complete";row.textContent="目标已取出，搜索结束";frontier.append(row);}
+      frontier.replaceChildren(...item.frontier.map(({name,value},index)=>{const next=index===0&&!item.done;const row=document.createElement("p");row.className=`frontier-row${next?" next-choice":""}`;row.textContent=`${next?"下一步 · ":""}${name} · ${type==="astar"?"f":"h"}=${value}`;return row;}));
+      if(item.done){const row=document.createElement("p");row.className="frontier-row complete";row.textContent="目标已取出，搜索结束；其余节点不再展开。";frontier.prepend(row);}
       score.replaceChildren(...scoreHistory.map(({text,step:rowStep})=>{const p=document.createElement("p");p.className=`score-row${rowStep===currentStep?" selected":""}${type==="astar"&&rowStep===3&&text.includes("Pitesti f=417")?" is-warning":""}`;p.textContent=text;return p;}));
-      lessonSteps.forEach((line,index)=>{line.classList.toggle("is-revealed",index<=currentStep);line.classList.toggle("is-current",index===Math.min(currentStep,lessonSteps.length-1));});
+      // The manuscript's final line combines generation and goal removal: reveal it only after both have occurred.
+      lessonSteps.forEach((line,index)=>{const revealed=index===lessonSteps.length-1?Boolean(item.done):index<=currentStep;line.classList.toggle("is-revealed",revealed);line.classList.toggle("is-current",revealed&&index===Math.min(currentStep,lessonSteps.length-1));});
       if(item.done){path.hidden=false;path.textContent=item.done;button.textContent="重新开始";lessonConclusion?.classList.add("is-revealed");if(compareButton)compareButton.disabled=false;}
       else{path.hidden=true;path.textContent="";button.textContent=currentStep===data.length-2?"取出终点":"下一步";}
       step++;
     };
     button.addEventListener("click",render);
+    resetButton.addEventListener("click",()=>{step=data.length;render();});
   }
   initMap("gbfs"); initMap("astar");
   $("compare-greedy").addEventListener("click",()=>{$("astar-compare").innerHTML="贪心找到：450<br>A* 找到：<b>418 ✅</b>";});

@@ -77,6 +77,8 @@
 .slide[data-slide="7"].is-enhanced .a-star-steps li:not(.is-revealed),.slide[data-slide="7"].is-enhanced .lead:not(.is-revealed) { display:none; }
 .danger-text { color:var(--danger); }
 .map-layout { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(350px,1fr); align-items:start; gap:16px; }
+.map-reset { margin:8px 0 8px 12px; }
+.frontier-row.complete { grid-column:1/-1; }
 .romania-map { display:block; width:100%; height:auto; max-height:clamp(300px,43vh,430px); border:2px solid var(--line); background:var(--white); }
 .map-edge { stroke:var(--primary); stroke-width:3; opacity:.2; }.map-edge.generated { stroke:var(--primary); stroke-width:4; opacity:.7; }.map-edge.active { stroke:var(--secondary); stroke-width:6; opacity:1; }
 .slide .map-weight { display:none; fill:var(--primary); text-anchor:middle; font-size:21px; font-weight:800; paint-order:stroke; stroke:var(--white); stroke-width:6px; stroke-linejoin:round; }.slide .map-weight.active { display:block; }
