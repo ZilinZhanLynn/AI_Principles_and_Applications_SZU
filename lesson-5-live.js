@@ -78,7 +78,7 @@
     const frontierTitle=document.createElement("h3");frontierTitle.textContent="当前待选节点（边界）";
     const frontier=document.createElement("div");frontier.className="frontier-list";frontier.setAttribute("aria-live","polite");
     scoreboard.insertBefore(frontierTitle,oldTitle);scoreboard.insertBefore(frontier,oldTitle);
-    map.replaceChildren(); mapEdges.forEach(([a,b])=>{const [x1,y1]=cities[a],[x2,y2]=cities[b];map.append(svgEl("line",{x1,y1,x2,y2,class:"map-edge","data-edge":`${a}-${b}`}));});
+    map.replaceChildren(); mapEdges.forEach(([a,b,miles])=>{const [x1,y1]=cities[a],[x2,y2]=cities[b],key=`${a}-${b}`;map.append(svgEl("line",{x1,y1,x2,y2,class:"map-edge","data-edge":key}));const distance=svgEl("text",{x:(x1+x2)/2,y:(y1+y2)/2-8,class:"map-weight","data-edge":key,"aria-hidden":"true"});distance.textContent=String(miles);map.append(distance);});
     const gbfsLabels=new Set(["Arad","Sibiu","Timisoara","Zerind","Fagaras","Rimnicu","Oradea","Bucharest"]);
     Object.entries(cities).forEach(([name,[x,y]])=>{const g=svgEl("g",{class:"map-city","data-city":name});g.append(svgEl("circle",{cx:x,cy:y,r:16}));const label=svgEl("text",{x,y:y-32});label.textContent=name;g.append(label);const h=heuristic[name]??"";if(h!==""&&(type!=="gbfs"||gbfsLabels.has(name))){const t=svgEl("text",{x,y:y+34,class:"h-label"});t.textContent=`h=${h}`;g.append(t);}map.append(g);});
     let step=0; const data=mapSteps[type], scoreHistory=[], seen=new Set(), generatedEdges=new Set();
@@ -92,6 +92,7 @@
         step=0; scoreHistory.length=0; seen.clear(); generatedEdges.clear();
         map.querySelectorAll(".map-city").forEach(g=>{g.classList.remove("active","neighbor");});
         map.querySelectorAll(".map-edge").forEach(e=>{e.classList.remove("active","generated");});
+        map.querySelectorAll(".map-weight").forEach(e=>e.classList.remove("active"));
         score.replaceChildren(); frontier.replaceChildren(); path.hidden=true; path.textContent="";
         lessonSteps.forEach(line=>line.classList.remove("is-revealed","is-current"));
         lessonConclusion?.classList.remove("is-revealed");
@@ -109,6 +110,7 @@
         e.classList.toggle("active",item.edges.includes(key)||item.edges.includes(reverse));
         e.classList.toggle("generated",generatedEdges.has(key)||generatedEdges.has(reverse));
       });
+      map.querySelectorAll(".map-weight").forEach(e=>{const key=e.dataset.edge,reverse=key.split("-").reverse().join("-");e.classList.toggle("active",item.edges.includes(key)||item.edges.includes(reverse));});
       item.rows.forEach(text=>scoreHistory.push({text,step:currentStep}));
       frontier.replaceChildren(...item.frontier.map(({name,value},index)=>{const row=document.createElement("p");row.className=`frontier-row${index===0?" next-choice":""}`;row.textContent=`${index===0?"下一步 · ":""}${name} · ${type==="astar"?"f":"h"}=${value}`;return row;}));
       if(item.frontier.length===0){const row=document.createElement("p");row.className="frontier-row complete";row.textContent="目标已取出，搜索结束";frontier.append(row);}
