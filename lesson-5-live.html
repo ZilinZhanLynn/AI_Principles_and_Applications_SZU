@@ -1,27 +1,718 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#003366"><title>第 5 讲 · 有信息搜索（启发式搜索）</title><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="course-live-base.css?v=20261018-ui7"><link rel="stylesheet" href="lesson-5-live.css?v=20261018-ui7"><script src="course-live.js?v=20261018-ui7" defer></script><script src="lesson-5-live.js?v=20261018-ui7" defer></script></head>
-<body class="course-shell" data-ui-standard="1.3"><a class="skip" href="#deck">跳到课堂内容</a><header class="topbar"><a class="brand" href="index.html"><span class="brand-mark"><img src="assets/szu-emblem.png" alt="深圳大学校徽"></span><span><b>人工智能原理与应用</b><small>第 5 讲 · 有信息搜索（启发式搜索）</small></span></a><nav><a href="lesson.html?n=6">配套课程单元</a><a href="index.html#schedule">课程目录</a><button id="fullscreen" type="button">全屏</button></nav></header>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#003366">
+<title>第 5 讲 · 有信息搜索（启发式搜索）</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="course-live-base.css?v=20261019-ui16">
+<link rel="stylesheet" href="course-live-layouts.css?v=20261019-ui16">
+<link rel="stylesheet" href="lesson-5-live.css?v=20261022-ppt3">
+<script src="course-live.js?v=20261019-ui16" defer>
+</script>
+<script src="lesson-5-live.js?v=20261022-ppt4" defer>
+</script>
+<script src="course-live-layouts.js?v=20261019-ui16" defer>
+</script>
+</head>
+<body class="course-shell" data-ui-standard="1.4">
+<a class="skip" href="#deck">跳到课堂内容</a>
+<header class="topbar">
+<a class="brand" href="index.html">
+<span class="brand-mark">
+<img src="assets/szu-emblem.png" alt="深圳大学校徽">
+</span>
+<span>
+<b>人工智能原理与应用</b>
+<small>第 5 讲 · 有信息搜索（启发式搜索）</small>
+</span>
+</a>
+<nav>
+<a href="lesson.html?n=6">配套课程单元</a>
+<a href="index.html#schedule">课程目录</a>
+<button id="fullscreen" type="button">全屏</button>
+</nav>
+</header>
 <main id="deck" class="deck" data-lesson-title="第 5 讲" aria-label="第 5 讲课堂放映页">
-<section class="slide" id="p1" data-slide="1" data-source-lines="§1 · 25–36"><div class="copy wide"><p class="eyebrow">01 · 封面与回顾</p><h1>有信息搜索<br>（启发式搜索）</h1><p class="lead">人工智能原理与应用 · 詹紫琳</p><p class="lead">上节课回顾：三种盲目搜索——BFS（按层数，FIFO）、DFS（一路到底，LIFO）、UCS（按 g(n) 已付代价从小到大）。它们的共同点：<b>知道目标是什么，但没有估计当前节点离目标还有多远的方向信息</b>。</p><div class="review-cards"><article><b>BFS</b><p>按层数，FIFO</p><small>按 ___ 顺序选节点</small></article><article><b>DFS</b><p>一路到底，LIFO</p><small>按 ___ 顺序选节点</small></article><article><b>UCS</b><p>按 g(n) 已付代价从小到大</p><small>按 ___ 顺序选节点</small></article></div></div></section>
-<section class="slide" id="p2" data-slide="2" data-source-lines="§2 · 38–51"><div class="copy"><p class="eyebrow">02 · 启发式函数</p><h2>什么是启发式函数 h(n)</h2><ul><li>启发式函数 h(n) 是一个<b>猜测值</b>：从节点 n 出发，估计还要多大代价才能到目标。</li><li>如果 h(n₁) &lt; h(n₂)，我们猜测从 n₁ 到目标更近。</li><li>到了目标本身：h(n_goal) = 0。</li><li>典型例子：地图导航里的<b>直线距离</b>。</li></ul></div><aside class="interaction-panel"><div class="mini-map"><span class="map-label start">你</span><span class="map-label goal">后海</span><svg viewBox="0 0 640 300" role="img" aria-label="直线距离与弯曲路线"><path class="road" d="M62 232 C120 228 106 118 190 126 S263 211 324 154 S423 95 563 58"/><path class="direct" d="M62 232 L563 58"/><circle cx="62" cy="232" r="12"/><circle cx="563" cy="58" r="12"/></svg></div><div class="distance-legend"><span>直线距离</span><span>实际地铁线路</span></div><p>你在深圳北站，猜离后海还有多远</p></aside></section>
-<section class="slide" id="p3" data-slide="3" data-source-lines="§3 · 53–66"><div class="copy"><p class="eyebrow">03 · 应用</p><h2>启发式搜索天天用</h2><ul><li>地图导航：Google Maps、高德、Uber 路径规划</li><li>机器人 / 无人机路径规划</li><li>游戏 NPC 自动走到目标点</li><li>机器翻译在候选句子里挑最像人话的一句</li></ul><div class="application-icons" aria-label="四种应用场景"><span role="img" aria-label="地图导航">🗺️</span><span role="img" aria-label="机器人或无人机">🤖</span><span role="img" aria-label="游戏">🎮</span><span role="img" aria-label="机器翻译">🌐</span></div></div><aside class="interaction-panel"><figure class="nav-shot"><div class="nav-map"><svg viewBox="0 0 760 420" role="img" aria-label="步行导航路线示意图，并非高德实际截图"><path class="street" d="M0 84H760M0 188H760M0 308H760M125 0V420M310 0V420M510 0V420M675 0V420"/><path class="minor-road" d="M0 138H760M0 254H760M210 0V420M410 0V420M590 0V420"/><path class="nav-route" d="M94 350 L188 350 L188 229 L355 229 L355 125 L572 125 L572 57 L686 57"/><circle class="nav-start" cx="94" cy="350" r="12"/><circle class="nav-end" cx="686" cy="57" r="16"/></svg><span class="nav-brand">路线示意图</span></div></figure></aside></section>
-<section class="slide" id="p4" data-slide="4" data-source-lines="§4 · 68–90"><div class="copy"><p class="eyebrow">04 · 贪心最好优先搜索</p><h2>贪心最好优先搜索 GBFS</h2><ul><li>贪心搜索（Greedy Best-First Search, GBFS）：每次从边缘选 <b>h(n) 最小</b>的节点扩展——哪条路看起来离目标近，就先走哪条。</li><li>例子：从 Arad 到 Bucharest，h ＝到 Bucharest 的直线距离。</li></ul></div><aside class="interaction-panel map-demo"><div class="map-layout"><svg id="gbfs-map" class="romania-map" viewBox="0 0 760 470" role="img" aria-label="罗马尼亚地图上的贪心搜索过程"></svg><section class="scoreboard"><h3>边缘记分牌</h3><div id="gbfs-score-list" class="score-list" aria-live="polite"></div><p id="gbfs-path" class="solution-path" hidden></p></section></div><button id="gbfs-next" class="primary-action" type="button">下一步</button></aside></section>
-<section class="slide" id="p5" data-slide="5" data-source-lines="§5 · 92–116"><div class="copy"><p class="eyebrow">05 · 贪心搜索的属性</p><h2>贪心搜索的属性</h2><ul><li>贪心只看 h：每次选 h(n) 最小的扩展。</li><li><b>不完备</b>：可能走进死胡同、可能绕圈。</li><li><b>不最优</b>：找到的路径不一定代价最小（例：450 vs 最优 418）。</li><li>优点：快，方向感好，不浪费时间探反方向。</li></ul><blockquote><b>知识卡片 · 贪心搜索的性格</b><br><b>贪心搜索就像只盯着终点走路的人</b>：眼睛一直看目标方向，哪条路朝目标偏就走哪条。它快，但两个毛病——<br><b>① 可能绕远</b>：朝目标方向那条路如果要绕大山，它不回头；<br><b>② 可能走死</b>：死胡同正好对着目标方向，它一头撞进去。<br><b>结论：贪心不完备、不最优，适合'先快出一个差不多的答案'。</blockquote></div><aside class="interaction-panel"><figure class="nav-shot compact"><div class="nav-map"><svg viewBox="0 0 700 360" role="img" aria-label="深圳宝安步行导航路线对照示意，并非实际截图"><path class="street" d="M0 70H700M0 160H700M0 270H700M90 0V360M245 0V360M420 0V360M590 0V360"/><path class="nav-route" d="M52 306 L170 306 L170 190 L320 190 L320 95 L620 95"/><path class="route-alt" d="M52 306 L120 306 L120 235 L270 235 L270 155 L510 155 L510 95 L620 95"/></svg><span class="nav-brand">路线示意图</span></div></figure><div class="route-options"><p>推荐方案 59 分钟 / 4.2 公里</p><p>方案二 47 分钟 / 3.3 公里</p><p>只朝直线距离走，不一定最快</p></div><table><thead><tr><th></th><th>完备性</th><th>最优性</th><th>速度</th></tr></thead><tbody><tr><th>GBFS</th><td>不完备</td><td>不最优</td><td>快</td></tr><tr><th>UCS</th><td>完备</td><td>最优</td><td>方向感差</td></tr></tbody></table></aside></section>
-<section class="slide" id="p6" data-slide="6" data-source-lines="§6 · 118–131"><div class="copy wide"><p class="eyebrow">06 · A* 算法</p><h2>A* 算法：把两个代价加起来</h2><div class="formula-intro"><p>一致代价搜索：按<b>向后代价 g(n)</b>（已走多远）排序。</p><p>贪心搜索：按<b>前向代价 h(n)</b>（猜还有多远）排序。</p><p><b>A* 把两者相加：f(n) = g(n) + h(n)</b>——既看已走多远，又猜还有多远。</p><p>A* 每次选 <b>f(n) 最小</b>的节点扩展。</p></div><div class="formula-compare" aria-label="g(n) 加 h(n) 等于 f(n)"><article><h3>一致代价搜索</h3><p>按<b>向后代价 g(n)</b></p><small>已走多远</small></article><b class="plus">＋</b><article><h3>贪心搜索</h3><p>按<b>前向代价 h(n)</b></p><small>猜还有多远</small></article><b class="equals">＝</b><article class="formula-result"><h3>A*</h3><p><b>f(n) = g(n) + h(n)</b></p><small>既看已走多远，又猜还有多远</small></article></div></div></section>
-<section class="slide" id="p7" data-slide="7" data-source-lines="§7 · 133–154"><div class="copy wide"><p class="eyebrow">07 · A* 走一遍</p><h2>A* 走一遍（罗马尼亚地图）</h2><ol class="a-star-steps" id="astar-steps"><li>第 1 步 · 展开 Arad：Sibiu f=140+253=<b>393</b> ｜ Timisoara f=118+329=447 ｜ Zerind f=75+374=449 → 选 Sibiu（393）</li><li>第 2 步 · 展开 Sibiu：Rimnicu f=220+193=<b>413</b> ｜ Fagaras f=239+176=415 ｜ Oradea f=291+380=671 → 选 Rimnicu（413）</li><li>第 3 步 · 展开 Rimnicu：Pitesti f=317+100=<b>417</b> ｜ Craiova f=366+160=526</li><li>第 4 步 · 展开 Fagaras（f=415 次小）：Bucharest f=450+0=450 —— <b class="danger-text">但边缘里还有 Pitesti f=417，继续！</b></li><li>第 5 步 · 展开 Pitesti（f=417）：Bucharest f=418+0=<b>418</b>，目标出队，结束</li></ol><p class="lead"><b>最优路径：</b>Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest，代价 140+80+97+101=<b>418</b></p></div><aside class="interaction-panel map-demo"><div class="map-layout"><svg id="astar-map" class="romania-map" viewBox="0 0 760 470" role="img" aria-label="罗马尼亚地图上的 A* 搜索过程"></svg><section class="scoreboard"><h3>边缘记分牌</h3><div id="astar-score-list" class="score-list" aria-live="polite"></div><p id="astar-path" class="solution-path" hidden></p></section></div><div class="map-actions"><button id="astar-next" class="primary-action" type="button">下一步</button><button id="compare-greedy" type="button">比一比</button></div><output id="astar-compare" class="compare-output" aria-live="polite"></output></aside></section>
-<section class="slide" id="p8" data-slide="8" data-source-lines="§8 · 156–177"><div class="copy"><p class="eyebrow">08 · A* 伪代码</p><h2>A* 伪代码（填空小游戏）</h2><ol><li>将起点加入边缘，f=g+h，g=0</li><li>重复直到边缘为空：<br>a. 取出 f(n) 最小的节点 n<br>b. 若 n 是目标 → 返回路径<br>c. 否则对每个后继算 f=g+h，放回边缘</li><li>边缘为空还没到目标 → 无解</li></ol><pre class="pseudo-code"><code>每次从边缘拿出 f(n) 最 ___ 的节点（大 / 小）<br>是目标就 ___ 这条路（返回 / 继续扩展）<br>不是目标就算后继的 f=g+h，放进 ___（边缘 / 回收站）</code></pre></div><aside class="interaction-panel code-quiz"><div class="code-line"><span>每次从边缘拿出 f(n) 最</span><button type="button" data-question="1" data-answer="big">大</button><button type="button" data-question="1" data-answer="small">小</button><span>的节点</span><b></b></div><div class="code-line"><span>是目标就</span><button type="button" data-question="2" data-answer="return">返回</button><button type="button" data-question="2" data-answer="continue">继续扩展</button><span>这条路</span><b></b></div><div class="code-line"><span>不是目标就算后继的 f=g+h，放进</span><button type="button" data-question="3" data-answer="frontier">边缘</button><button type="button" data-question="3" data-answer="bin">回收站</button><b></b></div></aside></section>
-<section class="slide" id="p9" data-slide="9" data-source-lines="§9 · 179–196"><div class="copy"><p class="eyebrow">09 · 路径松弛</p><h2>同一节点走两次：路径松弛</h2><ul><li>同一状态 C 可能从两条岔路到达。</li><li><b>路径松弛</b>：发现更便宜的路径到达同一状态时，按更低代价更新边缘里的记录。</li><li>例：经 B 到 C，g(C)=8、h(C)=2，f(C)=10；后来经 A 到 C，g(C)=7.5、h(C) 仍为 2，f(C)=9.5——更新为 9.5。</li></ul></div><aside class="interaction-panel relax-demo"><svg id="relax-graph" viewBox="0 0 700 340" role="img" aria-label="Start 通过 A 或 B 到同一状态 C；g 改变，h(C) 保持不变"></svg><div class="interaction-actions"><button id="relax-b" type="button">经 B 到 C：8+2=10</button><button id="relax-a" type="button">经 A 到 C：7.5+2=9.5 ✅</button></div><output id="relax-status" role="status" aria-live="polite"></output></aside></section>
-<section class="slide" id="p10" data-slide="10" data-source-lines="§10 · 198–211"><div class="copy"><p class="eyebrow">10 · A* 的最优性</p><h2>A* 凭什么最优：h 不能高估</h2><ul><li>A* 最优的秘密：h 是<b>可采纳的（admissible）</b>——h(n) 永远 ≤ 从 n 到目标的真实代价，<b>永不高估</b>。</li><li>直觉：h 不高估时，A* 优先扩展 f 小的节点；树搜索中，第一个弹出的目标节点是最优解。</li><li>图搜索还需处理重复状态：使用<b>一致的 h</b>，或者发现更低代价路径时正确更新并重新打开节点。</li><li>反例：h 张口估 6，真实只要 2——A* 被虚高报价吓跑，走错路。</li><li>若路径代价按实际行驶距离计算，直线距离不大于实际路程，可以作为可采纳的估计；若代价是时间或费用，则要另行验证。</li></ul><p class="source-note">依据：<a href="https://aima.eecs.berkeley.edu/4th-ed/pdfs/newchap04.pdf" target="_blank" rel="noopener">AIMA 第 4 章，A* 树搜索与图搜索的条件</a></p></div><aside class="interaction-panel admissible-demo"><svg viewBox="0 0 720 360" role="img" aria-label="启发式估计与真实代价示意"><path class="graph-road" d="M80 274 C182 268 128 116 282 119 S388 253 476 198 S550 101 640 73"/><path class="heuristic-line" d="M80 274 L640 73"/><circle class="diagram-point" cx="80" cy="274" r="15"/><circle class="diagram-point" cx="282" cy="119" r="15"/><circle class="diagram-goal" cx="640" cy="73" r="17"/><circle class="diagram-alt" cx="488" cy="292" r="16"/><path class="graph-road alt-road" d="M80 274 Q285 350 488 292"/><text x="58" y="318">Start</text><text x="270" y="95">n</text><text x="617" y="48">G</text><text x="460" y="327">G₂</text><text x="350" y="70">h(n) ≤ 真实剩余代价</text></svg><div class="principle-list"><p><b>h 不高估</b>：树搜索满足最优性的关键条件</p><p><b>图搜索</b>：还要检查一致性或正确处理重新打开节点</p><p><b>直线距离</b>：不高估实际行驶距离</p></div></aside></section>
-<section class="slide" id="p11" data-slide="11" data-source-lines="§11 · 213–226"><div class="copy"><p class="eyebrow">11 · A* 的性质</p><h2>A* 的性质</h2><ul><li><b>完备</b>：在本课有限、正代价的地图中，存在解就能找到。</li><li><b>最优</b>：树搜索要求 h 可采纳；图搜索还要求 h 一致，或正确更新并重新打开更便宜的重复状态。</li><li><b>缺点</b>：所有待扩展节点都存内存，地图一大内存吃不消（工程上有 IDA*、MA* 等变体）。</li><li><b>退化关系</b>：h=0 时，f=g，A* 退化为一致代价搜索 UCS；这不表示 A* 在所有问题上都比 UCS 更快。</li></ul></div><aside class="interaction-panel property-icons"><article><span class="property-icon good">✓</span><h3>完备</h3><p>本课有限、正代价的地图中，存在解就能找到。</p></article><article><span class="property-icon good">✓</span><h3>最优</h3><p>树搜索：h 可采纳；图搜索：h 一致或正确重新打开节点。</p></article><article><span class="property-icon warn">!</span><h3>内存大</h3><p>所有待扩展节点都存内存。</p></article></aside></section>
-<section class="slide" id="p12" data-slide="12" data-source-lines="§12 · 228–244"><div class="copy"><p class="eyebrow">12 · f-等高线</p><h2>f-等高线</h2><ul><li>在本例使用的一致直线距离启发函数下，A* 按 f 值递增的顺序扩展节点。</li><li>把 f 不超过同一阈值的节点圈起来作示意：f≤380、f≤400、f≤420。最优路径到 Bucharest 的 f=418，落在第三圈内。</li></ul></div><aside class="interaction-panel contour-demo"><svg id="contour-map" viewBox="0 0 720 400" role="img" aria-label="按真实节点 f 值逐步显示 f≤380、400、420 的示意范围"></svg><div class="interaction-actions"><button id="contour-next" class="primary-action" type="button">下一步</button></div><output id="contour-status" role="status" aria-live="polite"></output></aside></section>
-<section class="slide" id="p13" data-slide="13" data-source-lines="§13 · 246–267"><div class="copy wide"><p class="eyebrow">13 · 总结</p><h2>总结</h2><div class="summary-algorithms"><article><h3>贪心 GBFS</h3><p>扩展最小 h —— 不完备、不最优。</p></article><article><h3>A*</h3><p>扩展最小 g+h —— 在相应条件下完备、最优。</p></article></div><ul><li>启发函数 h：估计到目标的代价。</li><li>好的 h 可能显著减少计算量；也可以用学习方法为搜索提供引导信息。</li><li>思考：两种启发式算法分别是什么？各自的完备性和最优性？</li></ul><aside class="frontier-card"><h3>知识卡片 · 前沿：学习方法怎样帮助搜索</h3><p><b>本课的 h(n) 是到目标的代价估计；下面三个研究都把学习与搜索结合，但并不使用同一种 h。</b></p><p><b>AlphaZero（DeepMind）</b>：价值网络估计棋局结果，配合蒙特卡洛树搜索评估下法。价值估计与本课的“评估候选节点”有相通之处，但它不是 A* 所需的剩余路径代价 h(n)。</p><p><b>Neural A*（2021）</b>：用可训练的编码器生成引导图，再与可微的 A* 搜索结合，用于路径规划。论文报告了搜索质量与效率的权衡结果；没有统一的“比人工 h 快几十倍”结论。</p><p><b>Tree of Thoughts（2023）</b>：让大模型生成、评价并搜索多条中间思路。它与本课相通的是显式保留和比较候选路径；评价分数不等同于 A* 的可采纳 h(n)。</p><p class="source-note">原始资料：<a href="https://deepmind.google/blog/alphazero-shedding-new-light-on-chess-shogi-and-go/" target="_blank" rel="noopener">AlphaZero</a> · <a href="https://proceedings.mlr.press/v139/yonetani21a.html" target="_blank" rel="noopener">Neural A*</a> · <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener">Tree of Thoughts</a></p></aside></div></section>
-<section class="slide" id="p14" data-slide="14" data-source-lines="§14 · 269–280"><div class="copy wide"><p class="eyebrow">14 · 小结与复习</p><h2>小结与复习（学生复习直接看这一页）</h2><ol class="review-summary"><li><b>启发函数 h(n)</b>：从 n 到目标的估计代价，是猜测；h(目标)=0。</li><li><b>贪心 GBFS</b>：每次扩展 h 最小的节点。快，但不完备、不最优（罗马尼亚例：找到 450，非最优 418）。</li><li><b>A*</b>：f(n)=g(n)+h(n)，每次扩展 f 最小。g 管已走代价，h 管剩余估计。</li><li><b>可采纳性</b>：h(n) ≤ 真实剩余代价，不高估。树搜索以此保证最优；图搜索还需 h 一致，或正确更新并重新打开节点。</li><li><b>路径松弛</b>：同一状态发现更便宜路径时，更新边缘里的 g/f。</li><li><b>f-等高线</b>：A* 优先扩展 f 小的节点；等高线示意的是递增的 f 阈值，不是实际地图上的同心圆。</li><li><b>退化关系</b>：h=0 时 A* 退化为 UCS。</li><li><b>前沿</b>：AlphaZero、Neural A*、Tree of Thoughts 都结合了学习与搜索，但并非都学习同一种 h(n)。</li></ol></div></section>
-<section class="slide" id="p15" data-slide="15" data-source-lines="§15 · 282–304"><div class="copy"><p class="eyebrow">15 · 课堂自测</p><h2>课堂自测（教材习题改编）</h2></div><aside class="interaction-panel quiz-panel"><div class="quiz-progress"><span id="quiz-count">第 1 / 8 题</span><b id="quiz-score">已答对 0 题</b></div><article class="quiz-card" id="quiz-card"></article><div class="interaction-actions"><button id="quiz-prev" type="button">上一题</button><button id="quiz-next" class="primary-action" type="button">下一题</button></div><output id="quiz-total" class="quiz-total" role="status" aria-live="polite">当前答对 0 / 8 题</output></aside></section>
+<section class="slide" id="p1" data-slide="1" data-layout="overview" data-source-lines="§1 · 25–36">
+<div class="copy wide">
+<p class="eyebrow">01 · 封面与回顾</p>
+<h1>有信息搜索<br>（启发式搜索）</h1>
+<p class="lead">上节课回顾：三种盲目搜索——BFS（按层数，FIFO）、DFS（一路到底，LIFO）、UCS（按 g(n) 已付代价从小到大）。它们的共同点：<b>知道目标是什么，但没有估计当前节点离目标还有多远的方向信息</b>。</p>
+<div class="review-cards">
+<article>
+<b>BFS</b>
+<p>按层数，FIFO</p>
+<small>按 ___ 顺序选节点</small>
+</article>
+<article>
+<b>DFS</b>
+<p>一路到底，LIFO</p>
+<small>按 ___ 顺序选节点</small>
+</article>
+<article>
+<b>UCS</b>
+<p>按 g(n) 已付代价从小到大</p>
+<small>按 ___ 顺序选节点</small>
+</article>
+</div>
+</div>
+</section>
+<section class="slide" id="p2" data-slide="2" data-layout="concept" data-source-lines="§2 · 38–51; 课件 3、5 页">
+<div class="copy">
+<p class="eyebrow">02 · 启发式函数</p>
+<h2>什么是启发式函数 h(n)</h2>
+<ul>
+<li>在搜索问题中，每个节点 n 代表一个状态。启发式函数 h(n) 是一个<b>猜测值</b>：估计从当前节点到目标还需多少代价。</li>
+<li>如果 h(n₁) &lt; h(n₂)，我们猜测从 n₁ 到目标的花费更低。</li>
+<li>到了目标本身：h(n_goal) = 0。</li>
+<li>算法用 h(n) 决定优先扩展哪些节点，减少无谓的搜索。假设你在地图上找路：启发式函数 h(n) 表示从当前城市到<b>北京的直线距离</b>。</li>
+</ul>
+</div>
+<aside class="interaction-panel">
+<div class="mini-map">
+<span class="map-label start">当前城市</span>
+<span class="map-label goal">北京</span>
+<svg viewBox="0 0 640 300" role="img" aria-label="到北京的直线距离与实际路线示意">
+<path class="road" d="M62 232 C120 228 106 118 190 126 S263 211 324 154 S423 95 563 58"/>
+<path class="direct" d="M62 232 L563 58"/>
+<circle cx="62" cy="232" r="12"/>
+<circle cx="563" cy="58" r="12"/>
+</svg>
+</div>
+<div class="distance-legend">
+<span>直线距离</span>
+<span>实际路线</span>
+</div>
+<p>直线距离只是估计，不一定等于真实行车距离</p>
+</aside>
+</section>
+<section class="slide" id="p3" data-slide="3" data-layout="overview" data-source-lines="§3 · 53–66; 课件 4 页">
+<div class="copy wide">
+<p class="eyebrow">03 · 应用</p>
+<h2>启发式搜索的典型应用</h2>
+<div class="application-visual-grid" aria-label="三种直观应用示意">
+<article>
+<figure>
+<img src="assets/lesson-5/application-navigation.png" alt="手机地图在多条道路中规划从当前位置到目的地的路线">
+</figure>
+<p>地图导航 / 出行规划：Google Maps、高德地图、Uber 等路径规划</p>
+</article>
+<article>
+<figure>
+<img src="assets/lesson-5/application-robot-path.png" alt="仓库机器人绕开货架和路障前往目标区域">
+</figure>
+<p>机器人路径规划：机器人和无人机在二维/三维环境中寻找最短路径</p>
+</article>
+<article>
+<figure>
+<img src="assets/lesson-5/application-game-path.png" alt="游戏角色绕开墙体、岩石和河流前往宝箱">
+</figure>
+<p>游戏 AI：NPC 路径规划（角色自动走到目标点）</p>
+</article>
+</div>
+<p class="application-language">
+<b>自然语言处理 / 机器翻译：</b>选择最有希望的句子候选</p>
+</div>
+</section>
+<section class="slide" id="p4" data-slide="4" data-layout="demonstration" data-source-lines="§4 · 68–90; 课件 6–11、15 页">
+<div class="copy">
+<p class="eyebrow">04 · 贪心最好优先搜索</p>
+<h2>贪心最好优先搜索 GBFS</h2>
+<ul>
+<li>使用启发式函数 h(n)，估计从当前节点 n 到目标的剩余代价。</li>
+<li>每次扩展时，从候选节点中选择 <b>h(n) 最小</b>的那个（也就是看起来离目标最近的）。贪心只考虑当下“最优”的结果。</li>
+<li>重复直到找到目标。</li>
+<li>GBFS 的评价函数为 <b>f(n)=h(n)</b>；它只关心 h(n)，不关心 g(n)。</li>
+<li>例子：从 Arad 到 Bucharest，h ＝到 Bucharest 的直线距离。</li>
+</ul>
+</div>
+<aside class="interaction-panel map-demo">
+<div class="demo-toolbar">
+<button id="gbfs-next" class="primary-action" type="button">下一步</button>
+</div>
+<div class="map-layout">
+<div class="map-visual">
+<svg id="gbfs-map" class="romania-map" viewBox="0 0 760 470" role="img" aria-label="罗马尼亚地图上的贪心搜索过程">
+</svg>
+<p id="gbfs-path" class="solution-path" hidden>
+</p>
+</div>
+<section class="scoreboard">
+<h3>边缘记分牌</h3>
+<div id="gbfs-score-list" class="score-list" aria-live="polite">
+</div>
+</section>
+</div>
+<details class="source-expansion h-reference">
+<summary>查看完整 h 值表</summary>
+<div class="source-expansion__body">
+<ul class="heuristic-values" aria-label="到 Bucharest 的直线距离">
+<li>
+<span>Arad</span>
+<b>366</b>
+</li>
+<li>
+<span>Bucharest</span>
+<b>0</b>
+</li>
+<li>
+<span>Craiova</span>
+<b>160</b>
+</li>
+<li>
+<span>Dobreta</span>
+<b>242</b>
+</li>
+<li>
+<span>Eforie</span>
+<b>161</b>
+</li>
+<li>
+<span>Fagaras</span>
+<b>178</b>
+</li>
+<li>
+<span>Giurgiu</span>
+<b>77</b>
+</li>
+<li>
+<span>Hirsova</span>
+<b>151</b>
+</li>
+<li>
+<span>Iasi</span>
+<b>226</b>
+</li>
+<li>
+<span>Lugoj</span>
+<b>244</b>
+</li>
+<li>
+<span>Mehadia</span>
+<b>241</b>
+</li>
+<li>
+<span>Neamt</span>
+<b>234</b>
+</li>
+<li>
+<span>Oradea</span>
+<b>380</b>
+</li>
+<li>
+<span>Pitesti</span>
+<b>98</b>
+</li>
+<li>
+<span>Rimnicu Vilcea</span>
+<b>193</b>
+</li>
+<li>
+<span>Sibiu</span>
+<b>253</b>
+</li>
+<li>
+<span>Timisoara</span>
+<b>329</b>
+</li>
+<li>
+<span>Urziceni</span>
+<b>80</b>
+</li>
+<li>
+<span>Vaslui</span>
+<b>199</b>
+</li>
+<li>
+<span>Zerind</span>
+<b>374</b>
+</li>
+</ul>
+</div>
+</details>
+</aside>
+</section>
+<section class="slide" id="p5" data-slide="5" data-layout="concept" data-source-lines="§5 · 92–116; 课件 12–13 页">
+<div class="copy">
+<p class="eyebrow">05 · 贪心搜索的属性</p>
+<h2>贪心搜索的属性</h2>
+<div class="gbfs-properties">
+<section>
+<h3>1. 完备性（Completeness）</h3>
+<p class="property-verdict">不保证完备</p>
+<p>因为贪心搜索可能会掉进死胡同：它总是选择<b>看起来离目标最近的节点</b>，但如果路径被障碍物挡住，它可能在一个区域来回徘徊，无法找到解。</p>
+<p>在有限状态空间＋<b>检查重复状态</b>的情况下，可以保证完备；否则不一定。</p>
+</section>
+<section>
+<h3>2. 最优性（Optimality）</h3>
+<p class="property-verdict">不保证最优解</p>
+<p>原因：它只依赖启发式函数 h(n)（估计剩余代价），而不考虑从起点到当前节点的真实代价 g(n)。</p>
+<p>所以它可能走了一条“<b>看起来近，但总成本更大</b>”的路线。</p>
+</section>
+</div>
+<details class="source-expansion">
+<summary>查看时间与空间复杂度</summary>
+<div class="source-expansion__body">
+<p>
+<b>3. 时间复杂度（Time Complexity）：</b>最坏情况下，仍然可能需要扩展指数级的节点：O(b<sup>m</sup>)，其中 b 为分支因子，m 为最大深度。实际效率取决于启发式函数的质量。如果 h(n) 很好（接近真实代价），贪心搜索会比盲目搜索（BFS/DFS）快得多。</p>
+<p>
+<b>4. 空间复杂度（Space Complexity）：</b>和 UCS 类似，需要维护一个优先队列（按照 h(n) 排序）。空间复杂度与时间复杂度同量级：O(b<sup>m</sup>)。</p>
+</div>
+</details>
+</div>
+<aside class="interaction-panel">
+<figure class="ppt-route-example">
+<img src="assets/lesson-5/original-ppt-slide-12-route-example.jpeg" alt="导航案例：推荐方案59分钟、4.2公里、路口3个；方案二47分钟、3.3公里、路口4个">
+</figure>
+</aside>
+</section>
+<section class="slide" id="p6" data-slide="6" data-layout="overview" data-source-lines="§6 · 118–131">
+<div class="copy wide">
+<p class="eyebrow">06 · A* 算法</p>
+<h2>A* 算法：把两个代价加起来</h2>
+<div class="formula-intro">
+<p>一致代价搜索：按<b>向后代价 g(n)</b>（已走多远）排序。</p>
+<p>贪心搜索：按<b>前向代价 h(n)</b>（猜还有多远）排序。</p>
+<p>
+<b>A* 把两者相加：f(n) = g(n) + h(n)</b>——既看已走多远，又猜还有多远。</p>
+<p>A* 每次选 <b>f(n) 最小</b>的节点扩展。</p>
+</div>
+<div class="formula-compare" aria-label="g(n) 加 h(n) 等于 f(n)">
+<article>
+<h3>一致代价搜索</h3>
+<p>按<b>向后代价 g(n)</b>
+</p>
+<small>已走多远</small>
+</article>
+<b class="plus">＋</b>
+<article>
+<h3>贪心搜索</h3>
+<p>按<b>前向代价 h(n)</b>
+</p>
+<small>猜还有多远</small>
+</article>
+<b class="equals">＝</b>
+<article class="formula-result">
+<h3>A*</h3>
+<p>
+<b>f(n) = g(n) + h(n)</b>
+</p>
+<small>既看已走多远，又猜还有多远</small>
+</article>
+</div>
+</div>
+</section>
+<section class="slide" id="p7" data-slide="7" data-layout="demonstration" data-source-lines="§7 · 133–154">
+<div class="copy wide">
+<p class="eyebrow">07 · A* 走一遍</p>
+<h2>A* 走一遍（罗马尼亚地图）</h2>
+</div>
+<aside class="interaction-panel map-demo">
+<div class="demo-toolbar">
+<button id="astar-next" class="primary-action" type="button">下一步</button>
+<button id="compare-greedy" type="button">比一比</button>
+</div>
+<div class="map-layout">
+<div class="map-visual">
+<svg id="astar-map" class="romania-map" viewBox="0 0 760 470" role="img" aria-label="罗马尼亚地图上的 A* 搜索过程">
+</svg>
+<p id="astar-path" class="solution-path" hidden>
+</p>
+</div>
+<section class="scoreboard">
+<h3>边缘记分牌</h3>
+<div id="astar-score-list" class="score-list" aria-live="polite">
+</div>
+</section>
+</div>
+<output id="astar-compare" class="compare-output" aria-live="polite">
+</output>
+<details class="demo-history">
+<summary>查看讲解步骤与路径</summary>
+<ol class="a-star-steps" id="astar-steps">
+<li>第 1 步 · 展开 Arad：Sibiu f=140+253=<b>393</b> ｜ Timisoara f=118+329=447 ｜ Zerind f=75+374=449 → 选 Sibiu（393）</li>
+<li>第 2 步 · 展开 Sibiu：Rimnicu f=220+193=<b>413</b> ｜ Fagaras f=239+176=415 ｜ Oradea f=291+380=671 → 选 Rimnicu（413）</li>
+<li>第 3 步 · 展开 Rimnicu：Pitesti f=317+100=<b>417</b> ｜ Craiova f=366+160=526</li>
+<li>第 4 步 · 展开 Fagaras（f=415 次小）：Bucharest f=450+0=450 —— <b class="danger-text">但边缘里还有 Pitesti f=417，继续！</b>
+</li>
+<li>第 5 步 · 展开 Pitesti（f=417）：Bucharest f=418+0=<b>418</b>，目标出队，结束</li>
+</ol>
+<p class="lead">
+<b>最优路径：</b>Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest，代价 140+80+97+101=<b>418</b>
+</p>
+</details>
+<details class="source-expansion h-reference">
+<summary>查看完整 h 值表</summary>
+<div class="source-expansion__body">
+<ul class="heuristic-values" aria-label="到 Bucharest 的直线距离">
+<li>
+<span>Arad</span>
+<b>366</b>
+</li>
+<li>
+<span>Bucharest</span>
+<b>0</b>
+</li>
+<li>
+<span>Craiova</span>
+<b>160</b>
+</li>
+<li>
+<span>Dobreta</span>
+<b>242</b>
+</li>
+<li>
+<span>Eforie</span>
+<b>161</b>
+</li>
+<li>
+<span>Fagaras</span>
+<b>176</b>
+</li>
+<li>
+<span>Giurgiu</span>
+<b>77</b>
+</li>
+<li>
+<span>Hirsova</span>
+<b>151</b>
+</li>
+<li>
+<span>Iasi</span>
+<b>226</b>
+</li>
+<li>
+<span>Lugoj</span>
+<b>244</b>
+</li>
+<li>
+<span>Mehadia</span>
+<b>241</b>
+</li>
+<li>
+<span>Neamt</span>
+<b>234</b>
+</li>
+<li>
+<span>Oradea</span>
+<b>380</b>
+</li>
+<li>
+<span>Pitesti</span>
+<b>100</b>
+</li>
+<li>
+<span>Rimnicu Vilcea</span>
+<b>193</b>
+</li>
+<li>
+<span>Sibiu</span>
+<b>253</b>
+</li>
+<li>
+<span>Timisoara</span>
+<b>329</b>
+</li>
+<li>
+<span>Urziceni</span>
+<b>80</b>
+</li>
+<li>
+<span>Vaslui</span>
+<b>199</b>
+</li>
+<li>
+<span>Zerind</span>
+<b>374</b>
+</li>
+</ul>
+</div>
+</details>
+</aside>
+</section>
+<section class="slide" id="p8" data-slide="8" data-layout="concept" data-source-lines="§8 · 156–177; 课件 25 页">
+<div class="copy">
+<p class="eyebrow">08 · A* 伪代码</p>
+<h2>A* 伪代码（填空小游戏）</h2>
+<ol>
+<li>将起点加入边缘，f=g+h，g=0</li>
+<li>重复直到边缘为空：<br>a. 取出 f(n) 最小的节点 n<br>b. 若 n 是目标 → 返回路径<br>c. 否则对每个后继算 f=g+h，放回边缘</li>
+<li>边缘为空还没到目标 → 无解</li>
+</ol>
+<details class="source-expansion">
+<summary>查看完整伪代码</summary>
+<div class="source-expansion__body">
+<ol>
+<li>将起点加入开放列表 OPEN，f(s)=g(s)+h(s)，g(s)=0。</li>
+<li>重复以下步骤直到 OPEN 为空：<ol type="a">
+<li>从 OPEN 中取出 f(n) 最小的节点 n。</li>
+<li>若 n 为目标节点，则路径找到。</li>
+<li>否则，对 n 的每个后继 n′：若 n′ 不在 OPEN 或新路径更优，更新 g(n′)=g(n)+c(n,n′)、f(n′)=g(n′)+h(n′)，并记录父节点 predecessor(n′)=n。</li>
+</ol>
+</li>
+<li>若 OPEN 为空但未到目标 → 无解。</li>
+</ol>
+</div>
+</details>
+<pre class="pseudo-code">
+<code>每次从边缘拿出 f(n) 最 ___ 的节点（大 / 小）<br>是目标就 ___ 这条路（返回 / 继续扩展）<br>不是目标就算后继的 f=g+h，放进 ___（边缘 / 回收站）</code>
+</pre>
+</div>
+<aside class="interaction-panel code-quiz">
+<div class="code-line">
+<span>每次从边缘拿出 f(n) 最</span>
+<button type="button" data-question="1" data-answer="big">大</button>
+<button type="button" data-question="1" data-answer="small">小</button>
+<span>的节点</span>
+<b>
+</b>
+</div>
+<div class="code-line">
+<span>是目标就</span>
+<button type="button" data-question="2" data-answer="return">返回</button>
+<button type="button" data-question="2" data-answer="continue">继续扩展</button>
+<span>这条路</span>
+<b>
+</b>
+</div>
+<div class="code-line">
+<span>不是目标就算后继的 f=g+h，放进</span>
+<button type="button" data-question="3" data-answer="frontier">边缘</button>
+<button type="button" data-question="3" data-answer="bin">回收站</button>
+<b>
+</b>
+</div>
+</aside>
+</section>
+<section class="slide" id="p9" data-slide="9" data-layout="concept" data-source-lines="§9 · 179–196">
+<div class="copy">
+<p class="eyebrow">09 · 路径松弛</p>
+<h2>同一节点走两次：路径松弛</h2>
+<ul>
+<li>同一状态 C 可能从两条岔路到达。</li>
+<li>
+<b>路径松弛</b>：发现更便宜的路径到达同一状态时，按更低代价更新边缘里的记录。</li>
+<li>例：经 B 到 C，g(C)=2、h(C)=8，f(C)=8+2=10；后来经 A 到 C，g(C)=1.5、h(C) 仍为 8，f(C)=8+1.5=9.5——更新为 9.5。</li>
+</ul>
+</div>
+<aside class="interaction-panel relax-demo">
+<div class="diagram-viewport" tabindex="0" role="region" aria-label="教学图，窄屏可左右滚动">
+<svg id="relax-graph" viewBox="0 0 700 340" role="img" aria-label="S 通过 A 或 B 到同一状态 C；g 改变，h(C)=8 保持不变">
+</svg>
+</div>
+<div class="interaction-actions">
+<button id="relax-b" type="button">经 B 到 C：8+2=10</button>
+<button id="relax-a" type="button">经 A 到 C：8+1.5=9.5 ✅</button>
+</div>
+<output id="relax-status" role="status" aria-live="polite">
+</output>
+</aside>
+</section>
+<section class="slide" id="p10" data-slide="10" data-layout="concept" data-source-lines="§10 · 198–211; 课件 27–32 页">
+<div class="copy">
+<p class="eyebrow">10 · A* 的最优性</p>
+<h2>A* 凭什么最优：h 不能高估</h2>
+<ul>
+<li>A* 最优的秘密：h 是<b>可采纳的（admissible）</b>——h(n) 永远 ≤ 从 n 到目标的真实代价，<b>永不高估</b>。</li>
+<li>只要启发函数可采纳，A* 在找到真正的最优目标 G 之前，不会“错误地”结束搜索并确定次优目标 G₂。</li>
+<li>反例：从 A 到目标 G 的真实剩余代价只有 1，若却估成 h(A)=6，A* 可能错过总成本为 2 的最优路径。</li>
+</ul>
+</div>
+<aside class="interaction-panel admissible-demo">
+<div class="diagram-viewport" tabindex="0" role="region" aria-label="教学图，窄屏可左右滚动">
+<svg class="overestimate-graph" viewBox="0 0 720 360" role="img" aria-label="高估反例：S 到 A 代价 1，A 到 G 代价 1，S 直接到 G 代价 3，但 h(A) 被高估为 6">
+<path class="overestimate-edge" d="M94 274L337 197L625 78"/>
+<path class="overestimate-direct" d="M94 274Q370 350 625 78"/>
+<circle class="overestimate-node" cx="94" cy="274" r="28"/>
+<circle class="overestimate-node overestimate-node--bad" cx="337" cy="197" r="28"/>
+<circle class="overestimate-node overestimate-node--goal" cx="625" cy="78" r="28"/>
+<text class="overestimate-node-label" x="94" y="282">S</text>
+<text class="overestimate-node-label" x="337" y="205">A</text>
+<text class="overestimate-node-label" x="625" y="86">G</text>
+<text class="overestimate-cost" x="205" y="218">1</text>
+<text class="overestimate-cost" x="492" y="118">1</text>
+<text class="overestimate-cost" x="371" y="316">3</text>
+<text class="overestimate-warning" x="286" y="143">h(A)=6</text>
+<text class="overestimate-caption" x="360" y="42">真实剩余代价 1，却估成 6</text>
+</svg>
+</div>
+<div class="overestimate-result">
+<span>最优路径</span>
+<b>S → A → G</b>
+<strong>总成本 2</strong>
+</div>
+<details class="demo-history">
+<summary>查看一致性条件</summary>
+<div class="principle-list">
+<p>
+<b>可采纳：</b>h(n) 不高估到目标的真实剩余代价。</p>
+<p>
+<b>一致性／单调性：</b>对任一相邻状态 n、n′，h(n) ≤ c(n,a,n′)+h(n′)；于是沿这一步有 f(n) ≤ f(n′)。</p>
+<p>
+<b>不一致的例子：</b>从家到公司估计 40 分钟，经加油站需要 10 分钟，再从加油站估计 25 分钟；40 &gt; 10+25。</p>
+<p>
+<b>一致的例子：</b>若从家到公司估计 30 分钟，则 30 ≤ 10+25。</p>
+</div>
+</details>
+</aside>
+</section>
+<section class="slide" id="p11" data-slide="11" data-layout="concept" data-source-lines="§11 · 213–226; 课件 27、34 页">
+<div class="copy">
+<p class="eyebrow">11 · A* 的性质</p>
+<h2>A* 的性质</h2>
+<ul>
+<li>
+<b>完备</b>：在本课有限、正代价的地图中，存在解就能找到。</li>
+<li>
+<b>最优</b>：树搜索要求 h 可采纳；图搜索还要求 h 一致，或正确更新并重新打开更便宜的重复状态。</li>
+<li>
+<b>缺点</b>：所有待扩展节点都存内存，地图一大内存吃不消（工程上有 IDA*、MA* 等变体）。</li>
+<li>
+<b>退化关系</b>：h=0 时，f=g，A* 退化为一致代价搜索 UCS；这不表示 A* 在所有问题上都比 UCS 更快。</li>
+</ul>
+<details class="source-expansion">
+<summary>查看复杂度与理想启发函数</summary>
+<div class="source-expansion__body">
+<p>
+<b>时间复杂度：</b>最坏情况下，A* 仍可能扩展指数级节点：O(b<sup>d</sup>)，其中 b 为分支因子，d 为解的深度。</p>
+<p>
+<b>启发质量：</b>h(n)=0 时，A* 退化为 UCS；若 h(n)=h*(n)，A* 只扩展最优路径上的节点（理想情况）。</p>
+<p>
+<b>空间复杂度：</b>空间复杂度为 O(b<sup>d</sup>)；OPEN 表和 CLOSED 表需要存储所有生成的节点。</p>
+</div>
+</details>
+</div>
+<aside class="interaction-panel property-icons">
+<article>
+<span class="property-icon good">✓</span>
+<h3>完备</h3>
+<p>本课有限、正代价的地图中，存在解就能找到。</p>
+</article>
+<article>
+<span class="property-icon good">✓</span>
+<h3>最优</h3>
+<p>树搜索：h 可采纳；图搜索：h 一致或正确重新打开节点。</p>
+</article>
+<article>
+<span class="property-icon warn">!</span>
+<h3>内存大</h3>
+<p>所有待扩展节点都存内存。</p>
+</article>
+</aside>
+</section>
+<section class="slide" id="p12" data-slide="12" data-layout="concept" data-source-lines="§12 · 228–244">
+<div class="copy">
+<p class="eyebrow">12 · f-等高线</p>
+<h2>f-等高线</h2>
+<ul>
+<li>在本例使用的一致直线距离启发函数下，A* 按 f 值递增的顺序扩展节点。</li>
+<li>把 f 不超过同一阈值的节点圈起来作示意：f≤380、f≤400、f≤420。最优路径到 Bucharest 的 f=418，落在第三圈内。</li>
+</ul>
+</div>
+<aside class="interaction-panel contour-demo">
+<div class="diagram-viewport" tabindex="0" role="region" aria-label="教学图，窄屏可左右滚动">
+<svg id="contour-map" viewBox="0 0 720 400" role="img" aria-label="按真实节点 f 值逐步显示 f≤380、400、420 的示意范围">
+</svg>
+</div>
+<div class="interaction-actions">
+<button id="contour-next" class="primary-action" type="button">下一步</button>
+</div>
+<output id="contour-status" role="status" aria-live="polite">
+</output>
+</aside>
+</section>
+<section class="slide" id="p13" data-slide="13" data-layout="overview" data-source-lines="§13 · 246–267; 课件 35 页">
+<div class="copy wide">
+<p class="eyebrow">13 · 总结</p>
+<h2>总结</h2>
+<div class="summary-algorithms">
+<article>
+<h3>贪心 GBFS</h3>
+<p>扩展最小 h —— 完备性有条件，不保证最优。</p>
+</article>
+<article>
+<h3>A*</h3>
+<p>扩展最小 g+h —— 在相应条件下完备、最优。</p>
+</article>
+</div>
+<ul>
+<li>启发函数 h：估计到目标的代价。</li>
+<li>好的 h 可能显著减少计算量；也可以用学习方法为搜索提供引导信息。</li>
+<li>思考：两种启发式算法分别是什么？各自的完备性和最优性？</li>
+</ul>
+<aside class="frontier-card">
+<h3>知识卡片 · 前沿：学习方法怎样帮助搜索</h3>
+<p>
+<b>本课的 h(n) 是到目标的代价估计；下面三个研究都把学习与搜索结合，但并不使用同一种 h。</b>
+</p>
+<p>
+<b>AlphaZero（DeepMind）</b>：价值网络估计棋局结果，配合蒙特卡洛树搜索评估下法。价值估计与本课的“评估候选节点”有相通之处，但它不是 A* 所需的剩余路径代价 h(n)。</p>
+<p>
+<b>Neural A*（2021）</b>：用可训练的编码器生成引导图，再与可微的 A* 搜索结合，用于路径规划。论文报告了搜索质量与效率的权衡结果；没有统一的“比人工 h 快几十倍”结论。</p>
+<p>
+<b>Tree of Thoughts（2023）</b>：让大模型生成、评价并搜索多条中间思路。它与本课相通的是显式保留和比较候选路径；评价分数不等同于 A* 的可采纳 h(n)。</p>
+<p class="source-note">原始资料：<a href="https://deepmind.google/blog/alphazero-shedding-new-light-on-chess-shogi-and-go/" target="_blank" rel="noopener">AlphaZero</a> · <a href="https://proceedings.mlr.press/v139/yonetani21a.html" target="_blank" rel="noopener">Neural A*</a> · <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener">Tree of Thoughts</a>
+</p>
+</aside>
+</div>
+</section>
+<section class="slide" id="p14" data-slide="14" data-layout="overview" data-source-lines="§14 · 269–280; 课件 12、35 页">
+<div class="copy wide">
+<p class="eyebrow">14 · 小结与复习</p>
+<h2>小结与复习</h2>
+<ol class="review-summary">
+<li>
+<b>启发函数 h(n)</b>：从 n 到目标的估计代价，是猜测；h(目标)=0。</li>
+<li>
+<b>贪心 GBFS</b>：每次扩展 h 最小的节点。有限状态空间且检查重复状态时可保证完备；不保证最优（罗马尼亚例：找到 450，非最优 418）。</li>
+<li>
+<b>A*</b>：f(n)=g(n)+h(n)，每次扩展 f 最小。g 管已走代价，h 管剩余估计。</li>
+<li>
+<b>可采纳性</b>：h(n) ≤ 真实剩余代价，不高估。树搜索以此保证最优；图搜索还需 h 一致，或正确更新并重新打开节点。</li>
+<li>
+<b>路径松弛</b>：同一状态发现更便宜路径时，更新边缘里的 g/f。</li>
+<li>
+<b>f-等高线</b>：A* 优先扩展 f 小的节点；等高线示意的是递增的 f 阈值，不是实际地图上的同心圆。</li>
+<li>
+<b>退化关系</b>：h=0 时 A* 退化为 UCS。</li>
+<li>
+<b>前沿</b>：AlphaZero、Neural A*、Tree of Thoughts 都结合了学习与搜索，但并非都学习同一种 h(n)。</li>
+</ol>
+</div>
+</section>
+<section class="slide" id="p15" data-slide="15" data-layout="assessment" data-source-lines="§15 · 282–304">
+<div class="copy">
+<p class="eyebrow">15 · 课堂自测</p>
+<h2>课堂自测（教材习题改编）</h2>
+</div>
+<aside class="interaction-panel quiz-panel">
+<div class="quiz-progress">
+<span id="quiz-count">第 1 / 8 题</span>
+<b id="quiz-score">已答对 0 题</b>
+</div>
+<article class="quiz-card" id="quiz-card">
+</article>
+<div class="interaction-actions">
+<button id="quiz-prev" type="button">上一题</button>
+<button id="quiz-next" class="primary-action" type="button">下一题</button>
+</div>
+<output id="quiz-total" class="quiz-total" role="status" aria-live="polite">当前答对 0 / 8 题</output>
+</aside>
+</section>
 </main>
 <footer class="course-pager" aria-label="课程翻页">
   <button id="prev" class="course-pager__previous" type="button">← 上一页</button>
-  <div class="course-pager__position"><span id="page-number" aria-live="polite">1 / 15</span><i class="course-pager__track" aria-hidden="true"><b id="progress"></b></i></div>
+  <div class="course-pager__position">
+<span id="page-number" aria-live="polite">1 / 15</span>
+<i class="course-pager__track" aria-hidden="true">
+<b id="progress">
+</b>
+</i>
+</div>
   <button id="next" class="course-pager__next" type="button">下一页 →</button>
   <small class="course-pager__hint">方向键切换</small>
 </footer>
-</body></html>
+</body>
+</html>

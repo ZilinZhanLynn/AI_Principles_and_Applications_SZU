@@ -70,7 +70,7 @@
   document.addEventListener('keydown', event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.defaultPrevented) return;
     const focused = document.activeElement;
-    if (focused?.matches('input, textarea, select') || focused?.isContentEditable) return;
+    if (focused?.matches('input, textarea, select') || focused?.matches('.diagram-viewport') || focused?.isContentEditable) return;
     const directions = {ArrowRight: 1, ArrowDown: 1, PageDown: 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1};
     if (event.key in directions) { event.preventDefault(); show(current + directions[event.key]); }
     else if (event.key === 'Home' || event.key === 'End') {

@@ -1,0 +1,27 @@
+/* Opt-in layout contract v1.4. Content and visual tokens remain in the base. */
+.course-shell .slide[data-layout] {
+  align-items: start;
+  align-content: center;
+  column-gap: clamp(24px, 3vw, 48px);
+}
+.course-shell .slide[data-layout="demonstration"],
+.course-shell .slide[data-layout="overview"],
+.course-shell .slide[data-layout="assessment"] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.course-shell .slide[data-layout="demonstration"],
+.course-shell .slide[data-layout="assessment"] { align-content: start; }
+.course-shell .slide[data-layout] > .copy.wide { max-width: none; width: 100%; margin: 0; }
+.course-shell .slide[data-layout="assessment"] > * { width: min(100%, 1080px); margin-inline: auto; }
+.course-shell .slide[data-layout="assessment"] h2 { margin-bottom: 0; }
+.course-shell .slide[data-layout] .interaction-panel { min-width: 0; padding: 20px; }
+.demo-toolbar { position: sticky; top: 0; z-index: 4; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding-block: 4px; background: var(--white); }
+.demo-toolbar .demo-position { margin-left: auto; color: var(--primary); font-weight: 700; }
+.demo-focus-toggle { margin-left:auto; }
+.course-shell .slide.is-demo-focused > .copy { display:none; }
+.demo-history { border-top: 2px solid var(--line); margin-top: 16px; padding-top: 8px; }
+.demo-history summary { min-height: 44px; display: list-item; padding: 8px 4px; cursor: pointer; color: var(--primary); font-weight: 700; }
+.demo-history summary:focus-visible { outline: 3px solid var(--secondary); outline-offset: 2px; }
+@media (max-width: 1050px) { .course-shell .slide[data-layout] { grid-template-columns: minmax(0,1fr); align-content: start; } }
+@media (prefers-reduced-motion: reduce) { .course-shell .slide[data-layout] * { animation: none !important; transition: none !important; } }
